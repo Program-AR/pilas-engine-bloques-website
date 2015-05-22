@@ -35,3 +35,11 @@ ul#descargas li {
 .btn-lg {
   font-size: 1.1em !important;
 }
+
+.border {
+  border: 1px solid red !important;
+}
+
+.right {
+  text-align: right;
+}

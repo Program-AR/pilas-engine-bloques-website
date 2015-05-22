@@ -2,7 +2,7 @@
 
   <h1>¡Aprendé a programar!</h1>
 
-  <p>Te presentamos una herraimenta para aprender
+  <p>Te presentamos una herramienta para aprender
   a programar realizando pequeños desafíos y juegos.</p>
 
 
@@ -11,9 +11,9 @@
     <p><span>Descargá la última versión para ...</span></p>
 
     <ul id='descargas'>
-      <li><a class='btn btn-info btn-lg' {{bindAttr href='link_windows'}}>{{fa-icon "windows"}} &nbsp; Windows</a></li>
-      <li><a class='btn btn-warning btn-lg' {{bindAttr href='link_mac'}}>{{fa-icon "apple"}} &nbsp; Mac OS X</a></li>
-      <li><a class='btn btn-success btn-lg' {{bindAttr href='link_deb'}}>{{fa-icon "linux"}} &nbsp; Huayra Linux</a></li>
+      <li><a class='btn btn-info btn-lg' {{bind-attr href='model.link_windows'}}>{{fa-icon "windows"}} &nbsp; Windows</a></li>
+      <li><a class='btn btn-warning btn-lg' {{bind-attr href='model.link_mac'}}>{{fa-icon "apple"}} &nbsp; Mac OS X</a></li>
+      <li><a class='btn btn-success btn-lg' {{bind-attr href='model.link_deb'}}>{{fa-icon "linux"}} &nbsp; Huayra Linux</a></li>
     </ul>
 
   </div>
@@ -26,8 +26,10 @@
 </div>
 
 
+<div class='footer center'>
+  <p>Para obtener más información, <a href='https://github.com/hugoruscitti/pilas-engine-bloques'>visitá nuestro repositorio</a>
+en github {{fa-icon "fa-github-alt"}}.</p>
 
-
-
-<div class='footer center'>Para obtener más información, <a href='https://github.com/hugoruscitti/pilas-engine-bloques'>visitá nuestro repositorio</a>
-en github {{fa-icon "fa-github-alt"}}.</div>
+  <p class='small'>La versión mas reciente de pilas-engine-bloques es la {{model.version}}, publicada
+    en la fecha: {{model.fecha}}.</p>
+</div>
