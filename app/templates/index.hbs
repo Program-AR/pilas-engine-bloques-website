@@ -1,3 +1,33 @@
-<h1>¡pilas-engine-bloques!</h1>
+<div class="jumbotron center">
 
-{{outlet}}
+  <h1>¡Aprendé a programar!</h1>
+
+  <p>Te presentamos una herraimenta para aprender
+  a programar realizando pequeños desafíos y juegos.</p>
+
+
+
+  <div class='descargas center'>
+    <p><strong>Descargá la última versión para ...</strong></p>
+
+    <ul id='descargas'>
+      <li><a class='btn btn-info btn-lg' {{bindAttr href='link_windows'}}><div class='sprite windows'></div> Windows</a></li>
+      <li><a class='btn btn-warning btn-lg' {{bindAttr href='link_mac'}}><div class='sprite platform_mac'></div> Mac OS X</a></li>
+      <li><a class='btn btn-success btn-lg' {{bindAttr href='link_deb'}}><div class='sprite huayra'></div> Huayra Linux</a></li>
+    </ul>
+
+  </div>
+
+</div>
+
+
+<div class='center'>
+  <img src='imagenes/preview.png'>
+</div>
+
+
+
+
+
+<div class='footer center'>Para obtener más información, <a href='https://github.com/hugoruscitti/pilas-engine-bloques'>visitá nuestro repositorio</a>
+en github {{fa-icon "fa-github-alt"}}.</div>
