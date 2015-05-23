@@ -25,7 +25,8 @@ deploy:
 	cd ../ghpages__pilas-engine-bloques-website/; git add --all .; git commit -m "update"; git push origin gh-pages
 	
 	@echo ""
-	@echo " * Subiendo los cambios a: http://hugoruscitti.github.io/pilas-engine-bloques "
+	@echo " * Subiendo los cambios a: http://bloques.pilas-engine.com.ar "
+	@echo "                           (http://hugoruscitti.github.io/pilas-engine-bloques) "
 	@echo ""
 
 iniciar:
