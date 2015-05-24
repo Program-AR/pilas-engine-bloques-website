@@ -43,3 +43,11 @@ ul#descargas li {
 .right {
   text-align: right;
 }
+
+.btn {
+  margin: 5px;
+}
+
+.img {
+  max-width: 100%;
+}
