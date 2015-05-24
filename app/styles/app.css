@@ -51,3 +51,7 @@ ul#descargas li {
 img {
   max-width: 100%;
 }
+
+.btn:hover {
+  margin: 0;
+}
