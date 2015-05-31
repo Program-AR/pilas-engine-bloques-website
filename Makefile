@@ -21,7 +21,7 @@ deploy:
 	git add .
 	git commit -m "actualizacion..."
 	git push
-	ember build --environment production
+	ember build --environment development
 	cd ../ghpages__pilas-engine-bloques-website; git pull
 	cp -r -f dist/* ../ghpages__pilas-engine-bloques-website/
 	cd ../ghpages__pilas-engine-bloques-website/; git add --all .; git commit -m "update"; git push origin gh-pages
