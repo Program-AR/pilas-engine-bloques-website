@@ -36,6 +36,7 @@ deploy_iframe:
 	cp -r ../pilas-engine-bloques/dist_web/ public/web
 	echo "\n" >> README.md
 	git add public/web
+	git add README.md
 	git commit -m "actualizando la aplicación web (para usar desde iframe)..."
 	@echo ""
 	@echo " * Se realizó solamente el commit. Te faltaría ejecutar: "
