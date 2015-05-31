@@ -4,11 +4,13 @@ V=[01;32m
 all:
 	@echo "Comandos disponibles:"
 	@echo ""
-	@echo "   $(V)release $(N) Actualizando releases y descargas."
+	@echo "   $(V)release $(N)       Actualizando releases y descargas."
 	@echo ""
-	@echo "   $(V)iniciar $(N) Instala todas las dependencias."
-	@echo "   $(V)preview $(N) Muestra el sitio de forma local."
-	@echo "   $(V)deploy  $(N) Sube el sitio completo a la web."
+	@echo "   $(V)iniciar $(N)       Instala todas las dependencias."
+	@echo "   $(V)preview $(N)       Muestra el sitio de forma local."
+	@echo "   $(V)deploy  $(N)       Sube el sitio completo a la web."
+	@echo ""
+	@echo "   $(V)deploy_iframe$(N)  Sube el sitio completo a la web."
 	@echo ""
 	
 preview:
@@ -28,6 +30,20 @@ deploy:
 	@echo " * Subiendo los cambios a: http://bloques.pilas-engine.com.ar "
 	@echo "                           (http://hugoruscitti.github.io/pilas-engine-bloques) "
 	@echo ""
+
+deploy_iframe:
+	cd ../pilas-engine-bloques/; make compilar_web
+	cp -r ../pilas-engine-bloques/dist_web/ public/web
+	echo "\n" >> README.md
+	git add public/web
+	git commit -m "actualizando la aplicación web (para usar desde iframe)..."
+	@echo ""
+	@echo " * Se realizó solamente el commit. Te faltaría ejecutar: "
+	@echo "      "
+	@echo "      make deploy"
+	@echo "      "
+
+
 
 iniciar:
 	npm install
