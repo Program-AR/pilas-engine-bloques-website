@@ -2081,7 +2081,7 @@ define('pilas-engine-bloques/controllers/application', ['exports', 'ember'], fun
 
       setInterval(actualizar, 100);
 
-      this.set("showLayout", this.get("environment").get("showLayout"));
+      this.set("layout", this.get("environment").get("showLayout"));
     }).on("init"),
 
     myModalButtons: [Ember['default'].Object.create({ title: "Cerrar", dismiss: "modal" })],
@@ -11409,7 +11409,7 @@ catch(err) {
 if (runningTests) {
   require("pilas-engine-bloques/tests/test-helper");
 } else {
-  require("pilas-engine-bloques/app")["default"].create({"name":"pilas-engine-bloques","version":"0.1.9.8f12c94f"});
+  require("pilas-engine-bloques/app")["default"].create({"name":"pilas-engine-bloques","version":"0.1.9.156bb6f3"});
 }
 
 /* jshint ignore:end */
