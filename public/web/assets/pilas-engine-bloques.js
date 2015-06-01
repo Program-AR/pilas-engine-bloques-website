@@ -8636,7 +8636,7 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
         },
         render: function render(context, env, contextualElement) {
           var dom = env.dom;
-          var hooks = env.hooks, get = hooks.get, inline = hooks.inline;
+          var hooks = env.hooks, inline = hooks.inline;
           dom.detectNamespace(contextualElement);
           var fragment;
           if (env.useFragmentCache && dom.canClone) {
@@ -8655,7 +8655,7 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
             fragment = this.build(dom);
           }
           var morph0 = dom.createMorphAt(fragment,1,1,contextualElement);
-          inline(env, morph0, context, "pilas-twitter", [], {"data-url": get(env, context, "url"), "data-text": get(env, context, "text"), "data-size": "large", "data-hashtags": "emberjs"});
+          inline(env, morph0, context, "pilas-twitter", [], {"data-url": "http://ejemplo.com", "data-text": "hola, este es un texto", "data-size": "large", "data-hashtags": "emberjs"});
           return fragment;
         }
       };
