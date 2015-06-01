@@ -1882,7 +1882,6 @@ define('pilas-engine-bloques/components/pilas-blockly', ['exports', 'ember'], fu
     ejecutando: false,
     cola_deshacer: [],
     data_observar_blockly: false,
-    mostrarTwitter: true,
     actividad: null,
 
     inyectarRedimensionado: (function () {
@@ -2058,32 +2057,6 @@ define('pilas-engine-bloques/components/pilas-desafio', ['exports', 'ember'], fu
         this.sendAction("onSelect", this.get("nombre"));
       }
     }
-  });
-
-});
-define('pilas-engine-bloques/components/pilas-twitter', ['exports', 'ember'], function (exports, Ember) {
-
-  'use strict';
-
-  var count = 0;
-
-  exports['default'] = Ember['default'].Component.extend({
-    rerenderButton: function rerenderButton() {
-      console.log(++count);
-      this.rerender();
-      //Ember.run.schedule('afterRender',twttr.widgets.load);
-    },
-    textObserver: (function () {
-      Ember['default'].run.debounce(this, this.get("rerenderButton"), 500);
-    }).observes("text", "url", "hashtags"),
-    init: function init() {
-      Ember['default'].run.schedule("afterRender", twttr.widgets.load);
-      this._super();
-    },
-
-    tagName: "a",
-    classNames: "twitter-share-button",
-    attributeBindings: ["data-size", "data-url", "data-text", "data-hashtags"]
   });
 
 });
@@ -8633,49 +8606,6 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
       };
     }());
     var child4 = (function() {
-      return {
-        isHTMLBars: true,
-        revision: "Ember@1.11.0",
-        blockParams: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        build: function build(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  C\n    ");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        render: function render(context, env, contextualElement) {
-          var dom = env.dom;
-          var hooks = env.hooks, inline = hooks.inline;
-          dom.detectNamespace(contextualElement);
-          var fragment;
-          if (env.useFragmentCache && dom.canClone) {
-            if (this.cachedFragment === null) {
-              fragment = this.build(dom);
-              if (this.hasRendered) {
-                this.cachedFragment = fragment;
-              } else {
-                this.hasRendered = true;
-              }
-            }
-            if (this.cachedFragment) {
-              fragment = dom.cloneNode(this.cachedFragment, true);
-            }
-          } else {
-            fragment = this.build(dom);
-          }
-          var morph0 = dom.createMorphAt(fragment,1,1,contextualElement);
-          inline(env, morph0, context, "pilas-twitter", [], {"data-url": "http://ejemplo.com", "data-text": "hola, este es un texto", "data-size": "large", "data-hashtags": "emberjs"});
-          return fragment;
-        }
-      };
-    }());
-    var child5 = (function() {
       var child0 = (function() {
         return {
           isHTMLBars: true,
@@ -8808,7 +8738,7 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
         }
       };
     }());
-    var child6 = (function() {
+    var child5 = (function() {
       return {
         isHTMLBars: true,
         revision: "Ember@1.11.0",
@@ -8857,7 +8787,7 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
         }
       };
     }());
-    var child7 = (function() {
+    var child6 = (function() {
       return {
         isHTMLBars: true,
         revision: "Ember@1.11.0",
@@ -8933,10 +8863,6 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n\n");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
@@ -8978,13 +8904,11 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
         var morph2 = dom.createMorphAt(element7,5,5);
         var morph3 = dom.createMorphAt(element7,7,7);
         var morph4 = dom.createMorphAt(element7,9,9);
-        var morph5 = dom.createMorphAt(element7,11,11);
         block(env, morph0, context, "if", [get(env, context, "mostrarAlternar")], {}, child0, null);
         block(env, morph1, context, "if", [get(env, context, "ejecutando")], {}, child1, child2);
         block(env, morph2, context, "if", [get(env, context, "mostrarVerCodigo")], {}, child3, null);
-        block(env, morph3, context, "if", [get(env, context, "mostrarTwitter")], {}, child4, null);
-        block(env, morph4, context, "if", [get(env, context, "mostrarGuardar")], {}, child5, null);
-        block(env, morph5, context, "if", [get(env, context, "cola_deshacer")], {}, child6, child7);
+        block(env, morph3, context, "if", [get(env, context, "mostrarGuardar")], {}, child4, null);
+        block(env, morph4, context, "if", [get(env, context, "cola_deshacer")], {}, child5, child6);
         return fragment;
       }
     };
@@ -9199,54 +9123,6 @@ define('pilas-engine-bloques/templates/components/pilas-desafio', ['exports'], f
         block(env, morph0, context, "if", [get(env, context, "deshabilitado")], {}, child0, child1);
         element(env, element2, context, "action", ["abrir"], {});
         content(env, morph1, context, "titulo");
-        return fragment;
-      }
-    };
-  }()));
-
-});
-define('pilas-engine-bloques/templates/components/pilas-twitter', ['exports'], function (exports) {
-
-  'use strict';
-
-  exports['default'] = Ember.HTMLBars.template((function() {
-    return {
-      isHTMLBars: true,
-      revision: "Ember@1.11.0",
-      blockParams: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      build: function build(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      render: function render(context, env, contextualElement) {
-        var dom = env.dom;
-        var hooks = env.hooks, content = hooks.content;
-        dom.detectNamespace(contextualElement);
-        var fragment;
-        if (env.useFragmentCache && dom.canClone) {
-          if (this.cachedFragment === null) {
-            fragment = this.build(dom);
-            if (this.hasRendered) {
-              this.cachedFragment = fragment;
-            } else {
-              this.hasRendered = true;
-            }
-          }
-          if (this.cachedFragment) {
-            fragment = dom.cloneNode(this.cachedFragment, true);
-          }
-        } else {
-          fragment = this.build(dom);
-        }
-        var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
-        dom.insertBoundary(fragment, 0);
-        content(env, morph0, context, "yield");
         return fragment;
       }
     };
@@ -10505,7 +10381,7 @@ define('pilas-engine-bloques/tests/components/pilas-blockly.jshint', function ()
 
   module('JSHint - components');
   test('components/pilas-blockly.js should pass jshint', function() { 
-    ok(false, 'components/pilas-blockly.js should pass jshint.\ncomponents/pilas-blockly.js: line 54, col 9, \'contenedor\' is defined but never used.\n\n1 error'); 
+    ok(false, 'components/pilas-blockly.js should pass jshint.\ncomponents/pilas-blockly.js: line 53, col 9, \'contenedor\' is defined but never used.\n\n1 error'); 
   });
 
 });
@@ -10526,16 +10402,6 @@ define('pilas-engine-bloques/tests/components/pilas-desafio.jshint', function ()
   module('JSHint - components');
   test('components/pilas-desafio.js should pass jshint', function() { 
     ok(true, 'components/pilas-desafio.js should pass jshint.'); 
-  });
-
-});
-define('pilas-engine-bloques/tests/components/pilas-twitter.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - components');
-  test('components/pilas-twitter.js should pass jshint', function() { 
-    ok(false, 'components/pilas-twitter.js should pass jshint.\ncomponents/pilas-twitter.js: line 15, col 38, \'twttr\' is not defined.\n\n1 error'); 
   });
 
 });
@@ -10862,38 +10728,6 @@ define('pilas-engine-bloques/tests/unit/components/pilas-desafio-test.jshint', f
   module('JSHint - unit/components');
   test('unit/components/pilas-desafio-test.js should pass jshint', function() { 
     ok(true, 'unit/components/pilas-desafio-test.js should pass jshint.'); 
-  });
-
-});
-define('pilas-engine-bloques/tests/unit/components/pilas-twitter-test', ['ember-qunit'], function (ember_qunit) {
-
-  'use strict';
-
-  ember_qunit.moduleForComponent("pilas-twitter", {});
-
-  ember_qunit.test("it renders", function (assert) {
-    assert.expect(2);
-
-    // Creates the component instance
-    var component = this.subject();
-    assert.equal(component._state, "preRender");
-
-    // Renders the component to the page
-    this.render();
-    assert.equal(component._state, "inDOM");
-  });
-
-  // Specify the other units that are required for this test
-  // needs: ['component:foo', 'helper:bar']
-
-});
-define('pilas-engine-bloques/tests/unit/components/pilas-twitter-test.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - unit/components');
-  test('unit/components/pilas-twitter-test.js should pass jshint', function() { 
-    ok(true, 'unit/components/pilas-twitter-test.js should pass jshint.'); 
   });
 
 });
