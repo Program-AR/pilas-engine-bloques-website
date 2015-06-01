@@ -2068,6 +2068,10 @@ define('pilas-engine-bloques/components/pilas-twitter', ['exports', 'ember'], fu
   exports['default'] = Ember['default'].Component.extend({
     tagName: "a",
     classNames: "twitter-share-button",
+    "data-size": Ember['default'].alias("size"),
+    "data-text": Ember['default'].alias("text"),
+    "data-url": Ember['default'].alias("url"),
+    "data-hashtags": Ember['default'].alias("hashtags"),
     attributeBindings: ["data-size", "data-url", "data-text", "data-hashtags"]
   });
 
