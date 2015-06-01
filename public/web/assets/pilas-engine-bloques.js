@@ -2070,6 +2070,7 @@ define('pilas-engine-bloques/controllers/application', ['exports', 'ember'], fun
     url: "",
     queryParams: ["layout"],
     layout: true,
+    environment: Ember['default'].inject.service(),
 
     mostrar_url: (function () {
       var controller = this;
@@ -2079,6 +2080,8 @@ define('pilas-engine-bloques/controllers/application', ['exports', 'ember'], fun
       };
 
       setInterval(actualizar, 100);
+
+      this.set("showLayout", this.get("environment").get("showLayout"));
     }).on("init"),
 
     myModalButtons: [Ember['default'].Object.create({ title: "Cerrar", dismiss: "modal" })],
@@ -3833,6 +3836,25 @@ define('pilas-engine-bloques/services/actividades', ['exports', 'ember'], functi
 
   // pisado porque ya viene con blockly
   // ni tampoco quiero modificar el javascript
+
+});
+define('pilas-engine-bloques/services/environment', ['exports', 'ember'], function (exports, Ember) {
+
+  'use strict';
+
+  exports['default'] = Ember['default'].Service.extend({
+    env: null,
+    showLayout: null,
+
+    loadProperties: (function () {
+      this.set("env", this.container.lookupFactory("config:environment"));
+      this.set("showLayout", this.get("env").showLayout);
+    }).on("init"),
+
+    getENV: function getENV() {
+      return this.get("env");
+    }
+  });
 
 });
 define('pilas-engine-bloques/services/liquid-fire-modals', ['exports', 'liquid-fire/modals'], function (exports, Modals) {
@@ -10389,7 +10411,7 @@ define('pilas-engine-bloques/tests/controllers/application.jshint', function () 
 
   module('JSHint - controllers');
   test('controllers/application.js should pass jshint', function() { 
-    ok(false, 'controllers/application.js should pass jshint.\ncontrollers/application.js: line 30, col 9, \'require\' is not defined.\n\n1 error'); 
+    ok(false, 'controllers/application.js should pass jshint.\ncontrollers/application.js: line 33, col 9, \'require\' is not defined.\n\n1 error'); 
   });
 
 });
@@ -10640,6 +10662,16 @@ define('pilas-engine-bloques/tests/services/actividades.jshint', function () {
   });
 
 });
+define('pilas-engine-bloques/tests/services/environment.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - services');
+  test('services/environment.js should pass jshint', function() { 
+    ok(true, 'services/environment.js should pass jshint.'); 
+  });
+
+});
 define('pilas-engine-bloques/tests/test-helper', ['pilas-engine-bloques/tests/helpers/resolver', 'ember-qunit'], function (resolver, ember_qunit) {
 
 	'use strict';
@@ -10873,6 +10905,32 @@ define('pilas-engine-bloques/tests/unit/services/actividades-test.jshint', funct
   module('JSHint - unit/services');
   test('unit/services/actividades-test.js should pass jshint', function() { 
     ok(true, 'unit/services/actividades-test.js should pass jshint.'); 
+  });
+
+});
+define('pilas-engine-bloques/tests/unit/services/environment-test', ['ember-qunit'], function (ember_qunit) {
+
+  'use strict';
+
+  ember_qunit.moduleFor("service:environment", {});
+
+  // Replace this with your real tests.
+  ember_qunit.test("it exists", function (assert) {
+    var service = this.subject();
+    assert.ok(service);
+  });
+
+  // Specify the other units that are required for this test.
+  // needs: ['service:foo']
+
+});
+define('pilas-engine-bloques/tests/unit/services/environment-test.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - unit/services');
+  test('unit/services/environment-test.js should pass jshint', function() { 
+    ok(true, 'unit/services/environment-test.js should pass jshint.'); 
   });
 
 });
