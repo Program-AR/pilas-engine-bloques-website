@@ -2065,13 +2065,24 @@ define('pilas-engine-bloques/components/pilas-twitter', ['exports', 'ember'], fu
 
   'use strict';
 
+  var count = 0;
+
   exports['default'] = Ember['default'].Component.extend({
+    rerenderButton: function rerenderButton() {
+      console.log(++count);
+      this.rerender();
+      Ember['default'].run.schedule("afterRender", twttr.widgets.load);
+    },
+    textObserver: (function () {
+      Ember['default'].run.debounce(this, this.get("rerenderButton"), 500);
+    }).observes("text", "url", "hashtags"),
+    init: function init() {
+      Ember['default'].run.schedule("afterRender", twttr.widgets.load);
+      this._super();
+    },
+
     tagName: "a",
     classNames: "twitter-share-button",
-    "data-size": Ember['default'].alias("size"),
-    "data-text": Ember['default'].alias("text"),
-    "data-url": Ember['default'].alias("url"),
-    "data-hashtags": Ember['default'].alias("hashtags"),
     attributeBindings: ["data-size", "data-url", "data-text", "data-hashtags"]
   });
 
@@ -8630,7 +8641,7 @@ define('pilas-engine-bloques/templates/components/pilas-blockly', ['exports'], f
         hasRendered: false,
         build: function build(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  B\n    ");
+          var el1 = dom.createTextNode("  C\n    ");
           dom.appendChild(el0, el1);
           var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
@@ -10524,7 +10535,7 @@ define('pilas-engine-bloques/tests/components/pilas-twitter.jshint', function ()
 
   module('JSHint - components');
   test('components/pilas-twitter.js should pass jshint', function() { 
-    ok(true, 'components/pilas-twitter.js should pass jshint.'); 
+    ok(false, 'components/pilas-twitter.js should pass jshint.\ncomponents/pilas-twitter.js: line 9, col 38, \'twttr\' is not defined.\ncomponents/pilas-twitter.js: line 15, col 38, \'twttr\' is not defined.\n\n2 errors'); 
   });
 
 });
