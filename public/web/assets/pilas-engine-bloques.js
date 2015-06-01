@@ -2071,7 +2071,7 @@ define('pilas-engine-bloques/components/pilas-twitter', ['exports', 'ember'], fu
     rerenderButton: function rerenderButton() {
       console.log(++count);
       this.rerender();
-      Ember['default'].run.schedule("afterRender", twttr.widgets.load);
+      //Ember.run.schedule('afterRender',twttr.widgets.load);
     },
     textObserver: (function () {
       Ember['default'].run.debounce(this, this.get("rerenderButton"), 500);
@@ -10535,7 +10535,7 @@ define('pilas-engine-bloques/tests/components/pilas-twitter.jshint', function ()
 
   module('JSHint - components');
   test('components/pilas-twitter.js should pass jshint', function() { 
-    ok(false, 'components/pilas-twitter.js should pass jshint.\ncomponents/pilas-twitter.js: line 9, col 38, \'twttr\' is not defined.\ncomponents/pilas-twitter.js: line 15, col 38, \'twttr\' is not defined.\n\n2 errors'); 
+    ok(false, 'components/pilas-twitter.js should pass jshint.\ncomponents/pilas-twitter.js: line 15, col 38, \'twttr\' is not defined.\n\n1 error'); 
   });
 
 });
