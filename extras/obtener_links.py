@@ -13,7 +13,8 @@ destino = 'app/routes/index.js'
 
 # Obtiene el ultimo numero de version.
 listado = os.listdir(directorio)
-listado.sort()
+listado = [l for l in listado if len(l.split('.')) == 3]
+listado.sort(key=lambda s: map(int, s.split('.')))
 version = listado[-1]
 
 archivo_origen = open(origen, 'rt')
