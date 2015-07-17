@@ -1029,6 +1029,7 @@ define('pilas-engine-bloques/actividades/actividadAlien', ['exports', 'pilas-eng
 
   var Accion = bloques['default'].Accion;
   var Sensor = bloques['default'].Sensor;
+  var Repetir = bloques['default'].Repetir;
 
   var EscenaAlien = (function (_super) {
     __extends(EscenaAlien, _super);
@@ -1231,7 +1232,7 @@ define('pilas-engine-bloques/actividades/actividadAlien', ['exports', 'pilas-eng
     // TODO: aca irian atributos iniciales que se desean para un personaje
     variables: [],
 
-    control: [],
+    control: [Repetir],
     expresiones: [],
     acciones: [IrDerecha, IrIzquierda, IrArriba, IrAbajo, Recoger],
     sensores: [ChocaConTuerca]
@@ -1654,10 +1655,82 @@ define('pilas-engine-bloques/actividades/bloques', ['exports', 'ember'], functio
     }
   });
 
+  /*
+   * Representa un valor mas complejo
+   * de un campo de un bloque
+   */
+  var ParamValor = Ember['default'].Object.extend({
+    build: function build() {
+      var str_block = "";
+      str_block += "<value name=\"NOMBRE\">".replace("NOMBRE", this.get("nombre_param"));
+
+      str_block += "<block type=\"TIPO\">".replace("TIPO", this.get("tipo_bloque"));
+
+      str_block += "<field name=\"TIPO\">".replace("TIPO", this.get("nombre_valor"));
+      str_block += this.get("valor");
+      str_block += "</field>";
+
+      str_block += "</block>";
+
+      str_block += "</value>";
+
+      return str_block;
+    }
+  });
+
+  /* ============================================== */
+
+  var EstructuraDeControl = Bloque.extend({
+
+    block_init: function block_init(block) {
+      this._super(block);
+      block.setColour(Blockly.Blocks.loops.COLOUR);
+      block.setInputsInline(true);
+      block.setPreviousStatement(true);
+      block.setNextStatement(true);
+    }
+
+  });
+
+  /* ============================================== */
+
+  var Repetir = EstructuraDeControl.extend({
+
+    init: function init() {
+      this._super();
+      this.set("id", "repetir");
+    },
+
+    block_init: function block_init(block) {
+      this._super(block);
+      block.appendValueInput("count").setCheck("Number").appendField("repetir");
+      block.appendStatementInput("block");
+    },
+
+    block_javascript: function block_javascript(block) {
+      var value_count = Blockly.JavaScript.valueToCode(block, "count", Blockly.JavaScript.ORDER_ATOMIC) || "0";
+      var statements_block = Blockly.JavaScript.statementToCode(block, "block");
+      var r = "programa.empezar_secuencia();\n";
+      r += statements_block;
+      r += "programa.repetirN(function(){\nreturn {{n}};\n});\n".replace("{{n}}", value_count);
+      return r;
+    },
+
+    get_parametros: function get_parametros() {
+      return [ParamValor.create({
+        nombre_param: "count",
+        tipo_bloque: "math_number",
+        nombre_valor: "NUM",
+        valor: "10"
+      })];
+    }
+
+  });
+
   var bloques = { Bloque: Bloque, CambioDeJSDeBlocky: CambioDeJSDeBlocky, VariableGet: VariableGet,
     VariableSet: VariableSet, VariableLocalGet: VariableLocalGet, VariableLocalSet: VariableLocalSet, Procedimiento: Procedimiento,
     Funcion: Funcion, CallNoReturn: CallNoReturn, CallReturn: CallReturn, ParamGet: ParamGet, AlEmpezar: AlEmpezar, Accion: Accion,
-    Sensor: Sensor };
+    Sensor: Sensor, Repetir: Repetir };
 
   exports['default'] = bloques;
 
@@ -2494,34 +2567,41 @@ define('pilas-engine-bloques/components/nw-zoom', ['exports', 'ember'], function
   exports['default'] = Ember['default'].Component.extend({
     tagName: "div",
     classNames: ["nw-zoom"],
-    zoom: 100,
+    zoomValue: 100,
+    zoom: Ember['default'].inject.service(),
 
     canZoomIn: (function () {
-      return this.get("zoom") < 120;
-    }).property("zoom"),
+      return this.get("zoomValue") < 120;
+    }).property("zoomValue"),
 
     canZoomOut: (function () {
-      return this.get("zoom") > 80;
-    }).property("zoom"),
+      return this.get("zoomValue") > 80;
+    }).property("zoomValue"),
+
+    cambiarZoom: (function () {
+      var gui = window.requireNode("nw.gui");
+      var win = gui.Window.get();
+      this.get("zoom").setValue(this.get("zoomValue"));
+
+      win.zoomLevel = (this.get("zoomValue") - 100) / 10;
+    }).observes("zoomValue"),
+
+    onStart: (function () {
+      this.set("zoomValue", this.get("zoom").getValue());
+      this.cambiarZoom();
+    }).on("init"),
 
     actions: {
       zoomIn: function zoomIn() {
-        this.set("zoom", this.get("zoom") + 10);
+        this.set("zoomValue", this.get("zoomValue") + 10);
       },
       zoomOut: function zoomOut() {
-        this.set("zoom", this.get("zoom") - 10);
+        this.set("zoomValue", this.get("zoomValue") - 10);
       },
       zoomRestore: function zoomRestore() {
-        this.set("zoom", 100);
+        this.set("zoomValue", 100);
       }
-    },
-    cambiarZoom: (function () {
-      var gui = require("nw.gui");
-      var win = gui.Window.get();
-
-      win.zoomLevel = (this.get("zoom") - 100) / 10;
-    }).observes("zoom")
-  });
+    } });
 
 });
 define('pilas-engine-bloques/components/pilas-blockly', ['exports', 'ember'], function (exports, Ember) {
@@ -2780,11 +2860,8 @@ define('pilas-engine-bloques/controllers/application', ['exports', 'ember'], fun
     myModalButtons: [Ember['default'].Object.create({ title: "Cerrar", dismiss: "modal" })],
 
     actions: {
-      show: function show() {
-        return Bootstrap.ModalManager.show("myModal");
-      },
       mostrar_devtools: function mostrar_devtools() {
-        require("nw.gui").Window.get().showDevTools();
+        window.requireNode("nw.gui").Window.get().showDevTools();
       },
       actualizar: function actualizar() {
         location.reload(true);
@@ -3999,7 +4076,7 @@ define('pilas-engine-bloques/services/browser', ['exports', 'ember'], function (
   exports['default'] = Ember['default'].Service.extend({
     openLink: function openLink(url) {
       if (isNodeWebkit) {
-        var gui = require("nw.gui");
+        var gui = window.requireNode("nw.gui");
         gui.Shell.openExternal(url);
       } else {
         window.open(url);
@@ -4078,9 +4155,26 @@ define('pilas-engine-bloques/services/validations', ['exports', 'ember'], functi
 
   var set = Ember['default'].set;
 
-  exports['default'] = Ember['default'].Object.extend({
+  exports['default'] = Ember['default'].Service.extend({
     init: function init() {
       set(this, "cache", {});
+    }
+  });
+
+});
+define('pilas-engine-bloques/services/zoom', ['exports', 'ember'], function (exports, Ember) {
+
+  'use strict';
+
+  exports['default'] = Ember['default'].Service.extend({
+    zoom: 100,
+
+    getValue: function getValue() {
+      return this.get("zoom");
+    },
+
+    setValue: function setValue(zoomValue) {
+      this.set("zoom", zoomValue);
     }
   });
 
@@ -4706,25 +4800,21 @@ define('pilas-engine-bloques/templates/-modal', ['exports'], function (exports) 
             var el2 = dom.createTextNode("\n      Herramientas de desarrollo:\n      ");
             dom.appendChild(el1, el2);
             var el2 = dom.createElement("button");
-            dom.setAttribute(el2,"class","btn btn-success btn-sm btn-rect");
+            dom.setAttribute(el2,"class","btn btn-success btn-sm");
             var el3 = dom.createElement("i");
             dom.setAttribute(el3,"class","glyphicon glyphicon glyphicon-refresh");
             dom.appendChild(el2, el3);
-            dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n      ");
-            dom.appendChild(el1, el2);
-            var el2 = dom.createElement("button");
-            dom.setAttribute(el2,"class","btn btn-info btn-sm btn-rect");
-            var el3 = dom.createElement("i");
-            dom.setAttribute(el3,"class","glyphicon glyphicon glyphicon-cog");
+            var el3 = dom.createTextNode(" Actualizar");
             dom.appendChild(el2, el3);
             dom.appendChild(el1, el2);
             var el2 = dom.createTextNode("\n      ");
             dom.appendChild(el1, el2);
             var el2 = dom.createElement("button");
-            dom.setAttribute(el2,"class","btn btn-warning btn-sm btn-rect");
+            dom.setAttribute(el2,"class","btn btn-info btn-sm");
             var el3 = dom.createElement("i");
-            dom.setAttribute(el3,"class","glyphicon glyphicon-star-empty");
+            dom.setAttribute(el3,"class","glyphicon glyphicon glyphicon-cog");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode(" Mostrar devtools");
             dom.appendChild(el2, el3);
             dom.appendChild(el1, el2);
             var el2 = dom.createTextNode("\n    ");
@@ -4768,11 +4858,9 @@ define('pilas-engine-bloques/templates/-modal', ['exports'], function (exports) 
             var element0 = dom.childAt(fragment, [1]);
             var element1 = dom.childAt(element0, [1]);
             var element2 = dom.childAt(element0, [3]);
-            var element3 = dom.childAt(element0, [5]);
             var morph0 = dom.createMorphAt(dom.childAt(fragment, [3]),1,1);
             element(env, element1, context, "action", ["actualizar"], {});
             element(env, element2, context, "action", ["mostrar_devtools"], {});
-            element(env, element3, context, "action", ["show"], {});
             content(env, morph0, context, "nw-zoom");
             return fragment;
           }
@@ -4873,7 +4961,7 @@ define('pilas-engine-bloques/templates/-modal', ['exports'], function (exports) 
           dom.appendChild(el0, el1);
           var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("  \n");
+          var el1 = dom.createTextNode("\n");
           dom.appendChild(el0, el1);
           var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
@@ -5049,7 +5137,7 @@ define('pilas-engine-bloques/templates/-navbar', ['exports'], function (exports)
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createElement("a");
           dom.setAttribute(el1,"href","#");
-          var el2 = dom.createTextNode("Galeria");
+          var el2 = dom.createTextNode("Galería");
           dom.appendChild(el1, el2);
           dom.appendChild(el0, el1);
           return el0;
@@ -5078,45 +5166,6 @@ define('pilas-engine-bloques/templates/-navbar', ['exports'], function (exports)
       };
     }());
     var child3 = (function() {
-      return {
-        isHTMLBars: true,
-        revision: "Ember@1.11.0",
-        blockParams: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        build: function build(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1,"href","#");
-          var el2 = dom.createTextNode("Preferencias");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        render: function render(context, env, contextualElement) {
-          var dom = env.dom;
-          dom.detectNamespace(contextualElement);
-          var fragment;
-          if (env.useFragmentCache && dom.canClone) {
-            if (this.cachedFragment === null) {
-              fragment = this.build(dom);
-              if (this.hasRendered) {
-                this.cachedFragment = fragment;
-              } else {
-                this.hasRendered = true;
-              }
-            }
-            if (this.cachedFragment) {
-              fragment = dom.cloneNode(this.cachedFragment, true);
-            }
-          } else {
-            fragment = this.build(dom);
-          }
-          return fragment;
-        }
-      };
-    }());
-    var child4 = (function() {
       return {
         isHTMLBars: true,
         revision: "Ember@1.11.0",
@@ -5216,10 +5265,6 @@ define('pilas-engine-bloques/templates/-navbar', ['exports'], function (exports)
         dom.appendChild(el4, el5);
         var el5 = dom.createComment("");
         dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n        ");
-        dom.appendChild(el4, el5);
-        var el5 = dom.createComment("");
-        dom.appendChild(el4, el5);
         var el5 = dom.createTextNode("\n      ");
         dom.appendChild(el4, el5);
         dom.appendChild(el3, el4);
@@ -5272,13 +5317,11 @@ define('pilas-engine-bloques/templates/-navbar', ['exports'], function (exports)
         var morph0 = dom.createMorphAt(element1,1,1);
         var morph1 = dom.createMorphAt(element1,3,3);
         var morph2 = dom.createMorphAt(element1,5,5);
-        var morph3 = dom.createMorphAt(element1,7,7);
-        var morph4 = dom.createMorphAt(dom.childAt(element0, [3]),1,1);
+        var morph3 = dom.createMorphAt(dom.childAt(element0, [3]),1,1);
         block(env, morph0, context, "link-to", ["index"], {"tagName": "li"}, child0, null);
         block(env, morph1, context, "link-to", ["desafios"], {"tagName": "li"}, child1, null);
         block(env, morph2, context, "link-to", ["galeria"], {"tagName": "li"}, child2, null);
-        block(env, morph3, context, "link-to", ["preferencia"], {"tagName": "li"}, child3, null);
-        block(env, morph4, context, "em-modal-toggler", [], {"modal-id": "modal1", "class": "header-button"}, child4, null);
+        block(env, morph3, context, "em-modal-toggler", [], {"modal-id": "modal1", "class": "header-button"}, child3, null);
         return fragment;
       }
     };
@@ -9154,7 +9197,7 @@ define('pilas-engine-bloques/templates/components/nw-zoom', ['exports'], functio
         dom.insertBoundary(fragment, 0);
         block(env, morph0, context, "if", [get(env, context, "canZoomOut")], {}, child0, child1);
         element(env, element2, context, "action", ["zoomRestore"], {});
-        content(env, morph1, context, "zoom");
+        content(env, morph1, context, "zoomValue");
         block(env, morph2, context, "if", [get(env, context, "canZoomIn")], {}, child2, child3);
         return fragment;
       }
@@ -9903,54 +9946,6 @@ define('pilas-engine-bloques/templates/components/pilas-desafio', ['exports'], f
   }()));
 
 });
-define('pilas-engine-bloques/templates/desafios', ['exports'], function (exports) {
-
-  'use strict';
-
-  exports['default'] = Ember.HTMLBars.template((function() {
-    return {
-      isHTMLBars: true,
-      revision: "Ember@1.11.0",
-      blockParams: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      build: function build(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      render: function render(context, env, contextualElement) {
-        var dom = env.dom;
-        var hooks = env.hooks, content = hooks.content;
-        dom.detectNamespace(contextualElement);
-        var fragment;
-        if (env.useFragmentCache && dom.canClone) {
-          if (this.cachedFragment === null) {
-            fragment = this.build(dom);
-            if (this.hasRendered) {
-              this.cachedFragment = fragment;
-            } else {
-              this.hasRendered = true;
-            }
-          }
-          if (this.cachedFragment) {
-            fragment = dom.cloneNode(this.cachedFragment, true);
-          }
-        } else {
-          fragment = this.build(dom);
-        }
-        var morph0 = dom.createMorphAt(fragment,0,0,contextualElement);
-        dom.insertBoundary(fragment, 0);
-        content(env, morph0, context, "outlet");
-        return fragment;
-      }
-    };
-  }()));
-
-});
 define('pilas-engine-bloques/templates/desafios/error', ['exports'], function (exports) {
 
   'use strict';
@@ -10010,31 +10005,38 @@ define('pilas-engine-bloques/templates/desafios/index', ['exports'], function (e
       hasRendered: false,
       build: function build(dom) {
         var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("h1");
-        var el2 = dom.createTextNode("Desafíos");
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1,"class","contenido-principal");
+        var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("p");
-        var el2 = dom.createTextNode("Por el momento tenemos un solo desafío, ¡pero que desafío!");
+        var el2 = dom.createElement("h1");
+        var el3 = dom.createTextNode("Desafíos");
+        dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createComment("");
+        var el2 = dom.createTextNode("\n\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("p");
+        var el3 = dom.createTextNode("Estos son los desafíos disponibles parar realizar.");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n");
+        dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
@@ -10060,10 +10062,11 @@ define('pilas-engine-bloques/templates/desafios/index', ['exports'], function (e
         } else {
           fragment = this.build(dom);
         }
-        var morph0 = dom.createMorphAt(fragment,4,4,contextualElement);
-        var morph1 = dom.createMorphAt(fragment,6,6,contextualElement);
-        var morph2 = dom.createMorphAt(fragment,8,8,contextualElement);
-        var morph3 = dom.createMorphAt(fragment,10,10,contextualElement);
+        var element0 = dom.childAt(fragment, [0]);
+        var morph0 = dom.createMorphAt(element0,5,5);
+        var morph1 = dom.createMorphAt(element0,7,7);
+        var morph2 = dom.createMorphAt(element0,9,9);
+        var morph3 = dom.createMorphAt(element0,11,11);
         inline(env, morph0, context, "pilas-desafio", [], {"nombre": "alien", "titulo": "El alien y las tuercas", "onSelect": "onSelect"});
         inline(env, morph1, context, "pilas-desafio", [], {"nombre": "ElObreroCopado", "titulo": "El obrero copado", "onSelect": "onSelect"});
         inline(env, morph2, context, "pilas-desafio", [], {"nombre": "vampiro", "titulo": "Pesadillas de vampiro", "deshabilitado": true});
@@ -10363,7 +10366,13 @@ define('pilas-engine-bloques/templates/galeria', ['exports'], function (exports)
         hasRendered: false,
         build: function build(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("  Parece que no hay ningún juego creado...\n");
+          var el1 = dom.createTextNode("  ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("p");
+          var el2 = dom.createTextNode("Parece que no hay ningún juego creado...");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -10636,6 +10645,42 @@ define('pilas-engine-bloques/templates/index', ['exports'], function (exports) {
   'use strict';
 
   exports['default'] = Ember.HTMLBars.template((function() {
+    var child0 = (function() {
+      return {
+        isHTMLBars: true,
+        revision: "Ember@1.11.0",
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("Desafíos");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          return fragment;
+        }
+      };
+    }());
     return {
       isHTMLBars: true,
       revision: "Ember@1.11.0",
@@ -10646,10 +10691,42 @@ define('pilas-engine-bloques/templates/index', ['exports'], function (exports) {
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createElement("div");
         dom.setAttribute(el1,"class","contenido-principal");
-        var el2 = dom.createTextNode("\n\n\n");
+        var el2 = dom.createTextNode("\n\n  ");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("p");
-        var el3 = dom.createTextNode("Bienvenido a pilas-engine-bloques, una aplicación diseñada\n  para aprender a programar utilizando lógica y desafíos.");
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2,"class","box");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("img");
+        dom.setAttribute(el3,"src","images/main-logo.png");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("br");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("p");
+        var el4 = dom.createTextNode("\n      ¡Hola!, te damos la bienvenida a ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("strong");
+        var el5 = dom.createTextNode("pilas-engine-bloques");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(",\n      una herramienta diseñana para a programar utilizando lógica y\n      desafíos.\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("p");
+        var el4 = dom.createTextNode("\n      Ingresá en la sección ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n      para comenzar.\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n\n\n  ");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n\n");
@@ -10661,6 +10738,7 @@ define('pilas-engine-bloques/templates/index', ['exports'], function (exports) {
       },
       render: function render(context, env, contextualElement) {
         var dom = env.dom;
+        var hooks = env.hooks, block = hooks.block;
         dom.detectNamespace(contextualElement);
         var fragment;
         if (env.useFragmentCache && dom.canClone) {
@@ -10678,6 +10756,8 @@ define('pilas-engine-bloques/templates/index', ['exports'], function (exports) {
         } else {
           fragment = this.build(dom);
         }
+        var morph0 = dom.createMorphAt(dom.childAt(fragment, [0, 1, 7]),1,1);
+        block(env, morph0, context, "link-to", ["desafios"], {}, child0, null);
         return fragment;
       }
     };
@@ -11177,7 +11257,7 @@ define('pilas-engine-bloques/tests/actividades/actividadAlien.jshint', function 
 
   module('JSHint - actividades');
   test('actividades/actividadAlien.js should pass jshint', function() { 
-    ok(false, 'actividades/actividadAlien.js should pass jshint.\nactividades/actividadAlien.js: line 6, col 25, \'EscenaAlien\' is already defined.\nactividades/actividadAlien.js: line 5, col 5, \'__extends\' is not defined.\nactividades/actividadAlien.js: line 64, col 4, \'Base\' is not defined.\n\n3 errors'); 
+    ok(false, 'actividades/actividadAlien.js should pass jshint.\nactividades/actividadAlien.js: line 7, col 25, \'EscenaAlien\' is already defined.\nactividades/actividadAlien.js: line 6, col 5, \'__extends\' is not defined.\nactividades/actividadAlien.js: line 65, col 4, \'Base\' is not defined.\n\n3 errors'); 
   });
 
 });
@@ -11227,7 +11307,7 @@ define('pilas-engine-bloques/tests/components/nw-zoom.jshint', function () {
 
   module('JSHint - components');
   test('components/nw-zoom.js should pass jshint', function() { 
-    ok(false, 'components/nw-zoom.js should pass jshint.\ncomponents/nw-zoom.js: line 28, col 15, \'require\' is not defined.\n\n1 error'); 
+    ok(true, 'components/nw-zoom.js should pass jshint.'); 
   });
 
 });
@@ -11267,7 +11347,7 @@ define('pilas-engine-bloques/tests/controllers/application.jshint', function () 
 
   module('JSHint - controllers');
   test('controllers/application.js should pass jshint', function() { 
-    ok(false, 'controllers/application.js should pass jshint.\ncontrollers/application.js: line 33, col 9, \'require\' is not defined.\n\n1 error'); 
+    ok(false, 'controllers/application.js should pass jshint.\ncontrollers/application.js: line 3, col 5, \'Bootstrap\' is defined but never used.\n\n1 error'); 
   });
 
 });
@@ -11376,6 +11456,75 @@ define('pilas-engine-bloques/tests/helpers/start-app.jshint', function () {
   test('helpers/start-app.js should pass jshint', function() { 
     ok(true, 'helpers/start-app.js should pass jshint.'); 
   });
+
+});
+define('pilas-engine-bloques/tests/helpers/validate-properties', ['exports', 'ember', 'ember-qunit'], function (exports, Ember, ember_qunit) {
+
+  'use strict';
+
+  exports.testValidPropertyValues = testValidPropertyValues;
+  exports.testInvalidPropertyValues = testInvalidPropertyValues;
+
+  var run = Ember['default'].run;
+
+  function validateValues(object, propertyName, values, isTestForValid) {
+    var promise = null;
+    var validatedValues = [];
+
+    values.forEach(function (value) {
+      function handleValidation(errors) {
+        var hasErrors = object.get("errors." + propertyName + ".firstObject");
+        if (hasErrors && !isTestForValid || !hasErrors && isTestForValid) {
+          validatedValues.push(value);
+        }
+      }
+
+      run(object, "set", propertyName, value);
+
+      var objectPromise = null;
+      run(function () {
+        objectPromise = object.validate().then(handleValidation, handleValidation);
+      });
+
+      // Since we are setting the values in a different run loop as we are validating them,
+      // we need to chain the promises so that they run sequentially. The wrong value will
+      // be validated if the promises execute concurrently
+      promise = promise ? promise.then(objectPromise) : objectPromise;
+    });
+
+    return promise.then(function () {
+      return validatedValues;
+    });
+  }
+
+  function testPropertyValues(propertyName, values, isTestForValid, context) {
+    var validOrInvalid = isTestForValid ? "Valid" : "Invalid";
+    var testName = validOrInvalid + " " + propertyName;
+
+    ember_qunit.test(testName, function (assert) {
+      var object = this.subject();
+
+      if (context && typeof context === "function") {
+        context(object);
+      }
+
+      // Use QUnit.dump.parse so null and undefined can be printed as literal 'null' and
+      // 'undefined' strings in the assert message.
+      var valuesString = QUnit.dump.parse(values).replace(/\n(\s+)?/g, "").replace(/,/g, ", ");
+      var assertMessage = "Expected " + propertyName + " to have " + validOrInvalid.toLowerCase() + " values: " + valuesString;
+
+      return validateValues(object, propertyName, values, isTestForValid).then(function (validatedValues) {
+        assert.deepEqual(validatedValues, values, assertMessage);
+      });
+    });
+  }
+  function testValidPropertyValues(propertyName, values, context) {
+    testPropertyValues(propertyName, values, true, context);
+  }
+
+  function testInvalidPropertyValues(propertyName, values, context) {
+    testPropertyValues(propertyName, values, false, context);
+  }
 
 });
 define('pilas-engine-bloques/tests/models/galeria.jshint', function () {
@@ -11524,7 +11673,7 @@ define('pilas-engine-bloques/tests/services/browser.jshint', function () {
 
   module('JSHint - services');
   test('services/browser.js should pass jshint', function() { 
-    ok(false, 'services/browser.js should pass jshint.\nservices/browser.js: line 10, col 28, \'require\' is not defined.\nservices/browser.js: line 19, col 17, \'require\' is not defined.\n\n2 errors'); 
+    ok(false, 'services/browser.js should pass jshint.\nservices/browser.js: line 10, col 28, \'require\' is not defined.\n\n1 error'); 
   });
 
 });
@@ -11545,6 +11694,16 @@ define('pilas-engine-bloques/tests/services/twitter.jshint', function () {
   module('JSHint - services');
   test('services/twitter.js should pass jshint', function() { 
     ok(false, 'services/twitter.js should pass jshint.\nservices/twitter.js: line 4, col 7, Redefinition of \'URL\'.\nservices/twitter.js: line 9, col 7, \'$\' is not defined.\nservices/twitter.js: line 21, col 39, \'errorThrown\' is defined but never used.\nservices/twitter.js: line 21, col 31, \'status\' is defined but never used.\n\n4 errors'); 
+  });
+
+});
+define('pilas-engine-bloques/tests/services/zoom.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - services');
+  test('services/zoom.js should pass jshint', function() { 
+    ok(true, 'services/zoom.js should pass jshint.'); 
   });
 
 });
@@ -11859,6 +12018,32 @@ define('pilas-engine-bloques/tests/unit/services/twitter-test.jshint', function 
   module('JSHint - unit/services');
   test('unit/services/twitter-test.js should pass jshint', function() { 
     ok(true, 'unit/services/twitter-test.js should pass jshint.'); 
+  });
+
+});
+define('pilas-engine-bloques/tests/unit/services/zoom-test', ['ember-qunit'], function (ember_qunit) {
+
+  'use strict';
+
+  ember_qunit.moduleFor("service:zoom", {});
+
+  // Replace this with your real tests.
+  ember_qunit.test("it exists", function (assert) {
+    var service = this.subject();
+    assert.ok(service);
+  });
+
+  // Specify the other units that are required for this test.
+  // needs: ['service:foo']
+
+});
+define('pilas-engine-bloques/tests/unit/services/zoom-test.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - unit/services');
+  test('unit/services/zoom-test.js should pass jshint', function() { 
+    ok(true, 'unit/services/zoom-test.js should pass jshint.'); 
   });
 
 });
@@ -12337,7 +12522,7 @@ catch(err) {
 if (runningTests) {
   require("pilas-engine-bloques/tests/test-helper");
 } else {
-  require("pilas-engine-bloques/app")["default"].create({"name":"pilas-engine-bloques","version":"0.1.9.d5afd444"});
+  require("pilas-engine-bloques/app")["default"].create({"name":"pilas-engine-bloques","version":"0.4.0"});
 }
 
 /* jshint ignore:end */

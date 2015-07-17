@@ -7,6 +7,43 @@ var runningTests = false;
 
 /* jshint ignore:end */
 
+;/* jshint browser: true */
+(function(window) {
+  if (!window.nwDispatcher) { return; }
+
+  // Move `global.window` out of the way as it causes some third-party
+  // libraries to expose themselves via `global` instead of `window`.
+  var globalWindow = global.window;
+  delete global.window;
+
+  // Rename node's `require` to avoid conflicts with AMD's `require`.
+  var requireNode = window.requireNode = window.require;
+  delete window.require;
+
+  window.addEventListener('load', function() {
+    // Restore `global`.
+    global.window = globalWindow;
+
+    // Once the document is loaded, make node's `require` function
+    // available again. This is required for certain node modules that
+    // can't work with the alias, and for nw.js's GUI to function properly
+    // (e.g. opening the dev tools from the window toolbar).
+    var requireAMD = window.require;
+
+    if (requireAMD) {
+      window.require = function() {
+        try {
+          return requireAMD.apply(null, arguments);
+        } catch (e) {
+          return requireNode.apply(null, arguments);
+        }
+      };
+    } else {
+      window.require = requireNode;
+    }
+  });
+})(this);
+
 ;var define, requireModule, require, requirejs;
 
 (function() {
@@ -59946,12 +59983,13 @@ define("ember/resolver",
     };
   }
 
-  if (!(Object.create && !Object.create(null).hasOwnProperty)) {
+  var create = (Object.create || Ember.create);
+  if (!(create && !create(null).hasOwnProperty)) {
     throw new Error("This browser does not support Object.create(null), please polyfil with es5-sham: http://git.io/yBU2rg");
   }
 
   function makeDictionary() {
-    var cache = Object.create(null);
+    var cache = create(null);
     cache['_dict'] = null;
     delete cache['_dict'];
     return cache;
@@ -59998,7 +60036,7 @@ define("ember/resolver",
 
   function resolveOther(parsedName) {
     /*jshint validthis:true */
-    
+
     // Temporarily disabling podModulePrefix deprecation
     /*
     if (!this._deprecatedPodModulePrefix) {
@@ -60017,23 +60055,22 @@ define("ember/resolver",
     var normalizedModuleName = this.findModuleName(parsedName);
 
     if (normalizedModuleName) {
-      var module = require(normalizedModuleName, null, null, true /* force sync */);
+      var defaultExport = this._extractDefaultExport(normalizedModuleName, parsedName);
 
-      if (module && module['default']) { module = module['default']; }
-
-      if (module === undefined) {
+      if (defaultExport === undefined) {
         throw new Error(" Expected to find: '" + parsedName.fullName + "' within '" + normalizedModuleName + "' but got 'undefined'. Did you forget to `export default` within '" + normalizedModuleName + "'?");
       }
 
-      if (this.shouldWrapInClassFactory(module, parsedName)) {
-        module = classFactory(module);
+      if (this.shouldWrapInClassFactory(defaultExport, parsedName)) {
+        defaultExport = classFactory(defaultExport);
       }
 
-      return module;
+      return defaultExport;
     } else {
       return this._super(parsedName);
     }
   }
+
   // Ember.DefaultResolver docs:
   //   https://github.com/emberjs/ember.js/blob/master/packages/ember-application/lib/system/resolver.js
   var Resolver = Ember.DefaultResolver.extend({
@@ -60239,6 +60276,50 @@ define("ember/resolver",
       }
 
       Ember.Logger.info(symbol, parsedName.fullName, padding, description);
+    },
+
+    knownForType: function(type) {
+      var moduleEntries = requirejs.entries;
+      var moduleKeys = (Object.keys || Ember.keys)(moduleEntries);
+
+      var items = makeDictionary();
+      for (var index = 0, length = moduleKeys.length; index < length; index++) {
+        var moduleName = moduleKeys[index];
+        var fullname = this.translateToContainerFullname(type, moduleName);
+
+        if (fullname) {
+          items[fullname] = true;
+        }
+      }
+
+      return items;
+    },
+
+    translateToContainerFullname: function(type, moduleName) {
+      var prefix = this.prefix({ type: type });
+      var pluralizedType = this.pluralize(type);
+      var nonPodRegExp = new RegExp('^' + prefix + '/' + pluralizedType + '/(.+)$');
+      var podRegExp = new RegExp('^' + prefix + '/(.+)/' + type + '$');
+      var matches;
+
+
+      if ((matches = moduleName.match(podRegExp))) {
+        return type + ':' + matches[1];
+      }
+
+      if ((matches = moduleName.match(nonPodRegExp))) {
+        return type + ':' + matches[1];
+      }
+    },
+
+    _extractDefaultExport: function(normalizedModuleName) {
+      var module = require(normalizedModuleName, null, null, true /* force sync */);
+
+      if (module && module['default']) {
+        module = module['default'];
+      }
+
+      return module;
     }
   });
 
@@ -60557,6 +60638,21 @@ define("ember/load-initializers",
       };
     }
   });
+;/* jshint browser: true */
+(function() {
+  if (!window.nwDispatcher) { return; }
+
+  // Reload the page when anything in `dist` changes
+  var fs = window.requireNode('fs');
+  var watchDir = './dist';
+
+  if (fs.existsSync(watchDir)) {
+    fs.watch(watchDir, function() {
+      window.location.reload();
+    });
+  }
+})();
+
 ;/*! VelocityJS.org (1.2.2). (C) 2014 Julian Shapiro. MIT @license: en.wikipedia.org/wiki/MIT_License */
 
 /*************************
@@ -77572,7 +77668,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
       if (relationshipType === 'manyToNone' ||
           relationshipType === 'manyToMany' ||
           relationshipType === 'manyToOne') {
-        json[payloadKey] = snapshot.hasMany(key).mapBy('id');
+        json[payloadKey] = snapshot.hasMany(key, { ids: true });
         // TODO support for polymorphic manyToNone and manyToMany relationships
       }
     },
@@ -77615,8 +77711,8 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
     extractSingle: function(store, type, payload) {
       if (payload && payload._embedded) {
         for (var relation in payload._embedded) {
-          var relType = type.typeForRelationship(relation);
-          var typeName = relType.typeKey,
+          var relType = type.typeForRelationship(relation,store);
+          var typeName = relType.modelName,
               embeddedPayload = payload._embedded[relation];
 
           if (embeddedPayload) {
@@ -77679,12 +77775,12 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
 
       if (!record || !record.hasOwnProperty('id')) {
         return Ember.RSVP.reject(new Error("Couldn't find record of"
-                                           + " type '" + type.typeKey
+                                           + " type '" + type.modelName
                                            + "' for the id '" + id + "'."));
       }
 
       if (allowRecursive) {
-        return this.loadRelationships(type, record);
+        return this.loadRelationships(store, type, record);
       } else {
         return Ember.RSVP.resolve(record);
       }
@@ -77711,14 +77807,14 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
       for (var i = 0; i < ids.length; i++) {
         record = namespace.records[ids[i]];
         if (!record || !record.hasOwnProperty('id')) {
-          return Ember.RSVP.reject(new Error("Couldn't find record of type '" + type.typeKey
+          return Ember.RSVP.reject(new Error("Couldn't find record of type '" + type.modelName
                                              + "' for the id '" + ids[i] + "'."));
         }
         results.push(Ember.copy(record));
       }
 
       if (results.get('length') && allowRecursive) {
-        return this.loadRelationshipsForMany(type, results);
+        return this.loadRelationshipsForMany(store, type, results);
       } else {
         return Ember.RSVP.resolve(results);
       }
@@ -77743,7 +77839,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
       var results = this.query(namespace.records, query);
 
       if (results.get('length')) {
-        return this.loadRelationshipsForMany(type, results);
+        return this.loadRelationshipsForMany(store, type, results);
       } else {
         return Ember.RSVP.reject();
       }
@@ -77784,7 +77880,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
 
     createRecord: function (store, type, snapshot) {
       var namespaceRecords = this._namespaceForType(type);
-      var serializer = store.serializerFor(type.typeKey);
+      var serializer = store.serializerFor(type.modelName);
       var recordHash = serializer.serialize(snapshot, {includeId: true});
 
       namespaceRecords.records[recordHash.id] = recordHash;
@@ -77796,7 +77892,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
     updateRecord: function (store, type, snapshot) {
       var namespaceRecords = this._namespaceForType(type);
       var id = snapshot.id;
-      var serializer = store.serializerFor(type.typeKey);
+      var serializer = store.serializerFor(type.modelName);
 
       namespaceRecords.records[id] = serializer.serialize(snapshot, {includeId: true});
 
@@ -77877,7 +77973,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
     },
 
     modelNamespace: function(type) {
-      return type.url || type.typeKey;
+      return type.url || type.modelName;
     },
 
 
@@ -77923,10 +78019,10 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
      * @param {DS.Model} type
      * @param {Object} record
      */
-    loadRelationships: function(type, record) {
+    loadRelationships: function(store, type, record) {
       var adapter = this,
           resultJSON = {},
-          typeKey = type.typeKey,
+          modelName = type.modelName,
           relationshipNames, relationships,
           relationshipPromises = [];
 
@@ -77942,11 +78038,11 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
         .concat(relationshipNames.hasMany);
 
       relationships.forEach(function(relationName) {
-        var relationModel = type.typeForRelationship(relationName);
+        var relationModel = type.typeForRelationship(relationName,store);
         var relationEmbeddedId = record[relationName];
         var relationProp  = adapter.relationshipProperties(type, relationName);
         var relationType  = relationProp.kind;
-        var foreignAdapter = type.store.adapterFor(relationModel);
+        var foreignAdapter = store.adapterFor(relationName);
 
         var opts = {allowRecursive: false};
 
@@ -78062,7 +78158,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
      * @param {DS.Model} type
      * @param {Object} recordsArray
      */
-    loadRelationshipsForMany: function(type, recordsArray) {
+    loadRelationshipsForMany: function(store, type, recordsArray) {
       var adapter = this,
           promise = Ember.RSVP.resolve([]);
 
@@ -78072,7 +78168,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
        */
       recordsArray.forEach(function(record) {
         promise = promise.then(function(records) {
-          return adapter.loadRelationships(type, record)
+          return adapter.loadRelationships(store, type, record)
             .then(function(loadedRecord) {
               records.push(loadedRecord);
               return records;
@@ -78103,9 +78199,9 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
 }());
 
 ;/*!
- * Bootstrap v3.3.4 (http://getbootstrap.com)
+ * Bootstrap v3.3.5 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * Licensed under the MIT license
  */
 
 if (typeof jQuery === 'undefined') {
@@ -78121,7 +78217,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: transition.js v3.3.4
+ * Bootstrap: transition.js v3.3.5
  * http://getbootstrap.com/javascript/#transitions
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -78181,7 +78277,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: alert.js v3.3.4
+ * Bootstrap: alert.js v3.3.5
  * http://getbootstrap.com/javascript/#alerts
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -78200,7 +78296,7 @@ if (typeof jQuery === 'undefined') {
     $(el).on('click', dismiss, this.close)
   }
 
-  Alert.VERSION = '3.3.4'
+  Alert.VERSION = '3.3.5'
 
   Alert.TRANSITION_DURATION = 150
 
@@ -78276,7 +78372,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: button.js v3.3.4
+ * Bootstrap: button.js v3.3.5
  * http://getbootstrap.com/javascript/#buttons
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -78296,7 +78392,7 @@ if (typeof jQuery === 'undefined') {
     this.isLoading = false
   }
 
-  Button.VERSION  = '3.3.4'
+  Button.VERSION  = '3.3.5'
 
   Button.DEFAULTS = {
     loadingText: 'loading...'
@@ -78308,7 +78404,7 @@ if (typeof jQuery === 'undefined') {
     var val  = $el.is('input') ? 'val' : 'html'
     var data = $el.data()
 
-    state = state + 'Text'
+    state += 'Text'
 
     if (data.resetText == null) $el.data('resetText', $el[val]())
 
@@ -78333,15 +78429,19 @@ if (typeof jQuery === 'undefined') {
     if ($parent.length) {
       var $input = this.$element.find('input')
       if ($input.prop('type') == 'radio') {
-        if ($input.prop('checked') && this.$element.hasClass('active')) changed = false
-        else $parent.find('.active').removeClass('active')
+        if ($input.prop('checked')) changed = false
+        $parent.find('.active').removeClass('active')
+        this.$element.addClass('active')
+      } else if ($input.prop('type') == 'checkbox') {
+        if (($input.prop('checked')) !== this.$element.hasClass('active')) changed = false
+        this.$element.toggleClass('active')
       }
-      if (changed) $input.prop('checked', !this.$element.hasClass('active')).trigger('change')
+      $input.prop('checked', this.$element.hasClass('active'))
+      if (changed) $input.trigger('change')
     } else {
       this.$element.attr('aria-pressed', !this.$element.hasClass('active'))
+      this.$element.toggleClass('active')
     }
-
-    if (changed) this.$element.toggleClass('active')
   }
 
 
@@ -78384,7 +78484,7 @@ if (typeof jQuery === 'undefined') {
       var $btn = $(e.target)
       if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
       Plugin.call($btn, 'toggle')
-      e.preventDefault()
+      if (!($(e.target).is('input[type="radio"]') || $(e.target).is('input[type="checkbox"]'))) e.preventDefault()
     })
     .on('focus.bs.button.data-api blur.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       $(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type))
@@ -78393,7 +78493,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: carousel.js v3.3.4
+ * Bootstrap: carousel.js v3.3.5
  * http://getbootstrap.com/javascript/#carousel
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -78424,7 +78524,7 @@ if (typeof jQuery === 'undefined') {
       .on('mouseleave.bs.carousel', $.proxy(this.cycle, this))
   }
 
-  Carousel.VERSION  = '3.3.4'
+  Carousel.VERSION  = '3.3.5'
 
   Carousel.TRANSITION_DURATION = 600
 
@@ -78631,7 +78731,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: collapse.js v3.3.4
+ * Bootstrap: collapse.js v3.3.5
  * http://getbootstrap.com/javascript/#collapse
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -78661,7 +78761,7 @@ if (typeof jQuery === 'undefined') {
     if (this.options.toggle) this.toggle()
   }
 
-  Collapse.VERSION  = '3.3.4'
+  Collapse.VERSION  = '3.3.5'
 
   Collapse.TRANSITION_DURATION = 350
 
@@ -78843,7 +78943,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: dropdown.js v3.3.4
+ * Bootstrap: dropdown.js v3.3.5
  * http://getbootstrap.com/javascript/#dropdowns
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -78863,7 +78963,41 @@ if (typeof jQuery === 'undefined') {
     $(element).on('click.bs.dropdown', this.toggle)
   }
 
-  Dropdown.VERSION = '3.3.4'
+  Dropdown.VERSION = '3.3.5'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
+    })
+  }
 
   Dropdown.prototype.toggle = function (e) {
     var $this = $(this)
@@ -78878,7 +79012,10 @@ if (typeof jQuery === 'undefined') {
     if (!isActive) {
       if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
         // if mobile we use a backdrop because click events don't delegate
-        $('<div class="dropdown-backdrop"/>').insertAfter($(this)).on('click', clearMenus)
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
       }
 
       var relatedTarget = { relatedTarget: this }
@@ -78911,55 +79048,23 @@ if (typeof jQuery === 'undefined') {
     var $parent  = getParent($this)
     var isActive = $parent.hasClass('open')
 
-    if ((!isActive && e.which != 27) || (isActive && e.which == 27)) {
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
       if (e.which == 27) $parent.find(toggle).trigger('focus')
       return $this.trigger('click')
     }
 
     var desc = ' li:not(.disabled):visible a'
-    var $items = $parent.find('[role="menu"]' + desc + ', [role="listbox"]' + desc)
+    var $items = $parent.find('.dropdown-menu' + desc)
 
     if (!$items.length) return
 
     var index = $items.index(e.target)
 
-    if (e.which == 38 && index > 0)                 index--                        // up
-    if (e.which == 40 && index < $items.length - 1) index++                        // down
-    if (!~index)                                      index = 0
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
 
     $items.eq(index).trigger('focus')
-  }
-
-  function clearMenus(e) {
-    if (e && e.which === 3) return
-    $(backdrop).remove()
-    $(toggle).each(function () {
-      var $this         = $(this)
-      var $parent       = getParent($this)
-      var relatedTarget = { relatedTarget: this }
-
-      if (!$parent.hasClass('open')) return
-
-      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
-
-      if (e.isDefaultPrevented()) return
-
-      $this.attr('aria-expanded', 'false')
-      $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
-    })
-  }
-
-  function getParent($this) {
-    var selector = $this.attr('data-target')
-
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-    }
-
-    var $parent = selector && $(selector)
-
-    return $parent && $parent.length ? $parent : $this.parent()
   }
 
 
@@ -78999,13 +79104,12 @@ if (typeof jQuery === 'undefined') {
     .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
     .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
     .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
-    .on('keydown.bs.dropdown.data-api', '[role="menu"]', Dropdown.prototype.keydown)
-    .on('keydown.bs.dropdown.data-api', '[role="listbox"]', Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
 
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: modal.js v3.3.4
+ * Bootstrap: modal.js v3.3.5
  * http://getbootstrap.com/javascript/#modals
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -79039,7 +79143,7 @@ if (typeof jQuery === 'undefined') {
     }
   }
 
-  Modal.VERSION  = '3.3.4'
+  Modal.VERSION  = '3.3.5'
 
   Modal.TRANSITION_DURATION = 300
   Modal.BACKDROP_TRANSITION_DURATION = 150
@@ -79096,9 +79200,7 @@ if (typeof jQuery === 'undefined') {
         that.$element[0].offsetWidth // force reflow
       }
 
-      that.$element
-        .addClass('in')
-        .attr('aria-hidden', false)
+      that.$element.addClass('in')
 
       that.enforceFocus()
 
@@ -79132,7 +79234,6 @@ if (typeof jQuery === 'undefined') {
 
     this.$element
       .removeClass('in')
-      .attr('aria-hidden', true)
       .off('click.dismiss.bs.modal')
       .off('mouseup.dismiss.bs.modal')
 
@@ -79196,7 +79297,8 @@ if (typeof jQuery === 'undefined') {
     if (this.isShown && this.options.backdrop) {
       var doAnimate = $.support.transition && animate
 
-      this.$backdrop = $('<div class="modal-backdrop ' + animate + '" />')
+      this.$backdrop = $(document.createElement('div'))
+        .addClass('modal-backdrop ' + animate)
         .appendTo(this.$body)
 
       this.$element.on('click.dismiss.bs.modal', $.proxy(function (e) {
@@ -79345,7 +79447,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: tooltip.js v3.3.4
+ * Bootstrap: tooltip.js v3.3.5
  * http://getbootstrap.com/javascript/#tooltip
  * Inspired by the original jQuery.tipsy by Jason Frame
  * ========================================================================
@@ -79367,11 +79469,12 @@ if (typeof jQuery === 'undefined') {
     this.timeout    = null
     this.hoverState = null
     this.$element   = null
+    this.inState    = null
 
     this.init('tooltip', element, options)
   }
 
-  Tooltip.VERSION  = '3.3.4'
+  Tooltip.VERSION  = '3.3.5'
 
   Tooltip.TRANSITION_DURATION = 150
 
@@ -79396,7 +79499,8 @@ if (typeof jQuery === 'undefined') {
     this.type      = type
     this.$element  = $(element)
     this.options   = this.getOptions(options)
-    this.$viewport = this.options.viewport && $(this.options.viewport.selector || this.options.viewport)
+    this.$viewport = this.options.viewport && $($.isFunction(this.options.viewport) ? this.options.viewport.call(this, this.$element) : (this.options.viewport.selector || this.options.viewport))
+    this.inState   = { click: false, hover: false, focus: false }
 
     if (this.$element[0] instanceof document.constructor && !this.options.selector) {
       throw new Error('`selector` option must be specified when initializing ' + this.type + ' on the window.document object!')
@@ -79455,14 +79559,18 @@ if (typeof jQuery === 'undefined') {
     var self = obj instanceof this.constructor ?
       obj : $(obj.currentTarget).data('bs.' + this.type)
 
-    if (self && self.$tip && self.$tip.is(':visible')) {
-      self.hoverState = 'in'
-      return
-    }
-
     if (!self) {
       self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
       $(obj.currentTarget).data('bs.' + this.type, self)
+    }
+
+    if (obj instanceof $.Event) {
+      self.inState[obj.type == 'focusin' ? 'focus' : 'hover'] = true
+    }
+
+    if (self.tip().hasClass('in') || self.hoverState == 'in') {
+      self.hoverState = 'in'
+      return
     }
 
     clearTimeout(self.timeout)
@@ -79476,6 +79584,14 @@ if (typeof jQuery === 'undefined') {
     }, self.options.delay.show)
   }
 
+  Tooltip.prototype.isInStateTrue = function () {
+    for (var key in this.inState) {
+      if (this.inState[key]) return true
+    }
+
+    return false
+  }
+
   Tooltip.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
       obj : $(obj.currentTarget).data('bs.' + this.type)
@@ -79484,6 +79600,12 @@ if (typeof jQuery === 'undefined') {
       self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
       $(obj.currentTarget).data('bs.' + this.type, self)
     }
+
+    if (obj instanceof $.Event) {
+      self.inState[obj.type == 'focusout' ? 'focus' : 'hover'] = false
+    }
+
+    if (self.isInStateTrue()) return
 
     clearTimeout(self.timeout)
 
@@ -79531,6 +79653,7 @@ if (typeof jQuery === 'undefined') {
         .data('bs.' + this.type, this)
 
       this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
+      this.$element.trigger('inserted.bs.' + this.type)
 
       var pos          = this.getPosition()
       var actualWidth  = $tip[0].offsetWidth
@@ -79538,13 +79661,12 @@ if (typeof jQuery === 'undefined') {
 
       if (autoPlace) {
         var orgPlacement = placement
-        var $container   = this.options.container ? $(this.options.container) : this.$element.parent()
-        var containerDim = this.getPosition($container)
+        var viewportDim = this.getPosition(this.$viewport)
 
-        placement = placement == 'bottom' && pos.bottom + actualHeight > containerDim.bottom ? 'top'    :
-                    placement == 'top'    && pos.top    - actualHeight < containerDim.top    ? 'bottom' :
-                    placement == 'right'  && pos.right  + actualWidth  > containerDim.width  ? 'left'   :
-                    placement == 'left'   && pos.left   - actualWidth  < containerDim.left   ? 'right'  :
+        placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top'    :
+                    placement == 'top'    && pos.top    - actualHeight < viewportDim.top    ? 'bottom' :
+                    placement == 'right'  && pos.right  + actualWidth  > viewportDim.width  ? 'left'   :
+                    placement == 'left'   && pos.left   - actualWidth  < viewportDim.left   ? 'right'  :
                     placement
 
         $tip
@@ -79585,8 +79707,8 @@ if (typeof jQuery === 'undefined') {
     if (isNaN(marginTop))  marginTop  = 0
     if (isNaN(marginLeft)) marginLeft = 0
 
-    offset.top  = offset.top  + marginTop
-    offset.left = offset.left + marginLeft
+    offset.top  += marginTop
+    offset.left += marginLeft
 
     // $.fn.offset doesn't round pixel values
     // so we use setOffset directly with our own function B-0
@@ -79668,7 +79790,7 @@ if (typeof jQuery === 'undefined') {
 
   Tooltip.prototype.fixTitle = function () {
     var $e = this.$element
-    if ($e.attr('title') || typeof ($e.attr('data-original-title')) != 'string') {
+    if ($e.attr('title') || typeof $e.attr('data-original-title') != 'string') {
       $e.attr('data-original-title', $e.attr('title') || '').attr('title', '')
     }
   }
@@ -79723,7 +79845,7 @@ if (typeof jQuery === 'undefined') {
       var rightEdgeOffset = pos.left + viewportPadding + actualWidth
       if (leftEdgeOffset < viewportDimensions.left) { // left overflow
         delta.left = viewportDimensions.left - leftEdgeOffset
-      } else if (rightEdgeOffset > viewportDimensions.width) { // right overflow
+      } else if (rightEdgeOffset > viewportDimensions.right) { // right overflow
         delta.left = viewportDimensions.left + viewportDimensions.width - rightEdgeOffset
       }
     }
@@ -79749,7 +79871,13 @@ if (typeof jQuery === 'undefined') {
   }
 
   Tooltip.prototype.tip = function () {
-    return (this.$tip = this.$tip || $(this.options.template))
+    if (!this.$tip) {
+      this.$tip = $(this.options.template)
+      if (this.$tip.length != 1) {
+        throw new Error(this.type + ' `template` option must consist of exactly 1 top-level element!')
+      }
+    }
+    return this.$tip
   }
 
   Tooltip.prototype.arrow = function () {
@@ -79778,7 +79906,13 @@ if (typeof jQuery === 'undefined') {
       }
     }
 
-    self.tip().hasClass('in') ? self.leave(self) : self.enter(self)
+    if (e) {
+      self.inState.click = !self.inState.click
+      if (self.isInStateTrue()) self.enter(self)
+      else self.leave(self)
+    } else {
+      self.tip().hasClass('in') ? self.leave(self) : self.enter(self)
+    }
   }
 
   Tooltip.prototype.destroy = function () {
@@ -79786,6 +79920,12 @@ if (typeof jQuery === 'undefined') {
     clearTimeout(this.timeout)
     this.hide(function () {
       that.$element.off('.' + that.type).removeData('bs.' + that.type)
+      if (that.$tip) {
+        that.$tip.detach()
+      }
+      that.$tip = null
+      that.$arrow = null
+      that.$viewport = null
     })
   }
 
@@ -79822,7 +79962,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: popover.js v3.3.4
+ * Bootstrap: popover.js v3.3.5
  * http://getbootstrap.com/javascript/#popovers
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -79842,7 +79982,7 @@ if (typeof jQuery === 'undefined') {
 
   if (!$.fn.tooltip) throw new Error('Popover requires tooltip.js')
 
-  Popover.VERSION  = '3.3.4'
+  Popover.VERSION  = '3.3.5'
 
   Popover.DEFAULTS = $.extend({}, $.fn.tooltip.Constructor.DEFAULTS, {
     placement: 'right',
@@ -79931,7 +80071,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: scrollspy.js v3.3.4
+ * Bootstrap: scrollspy.js v3.3.5
  * http://getbootstrap.com/javascript/#scrollspy
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -79960,7 +80100,7 @@ if (typeof jQuery === 'undefined') {
     this.process()
   }
 
-  ScrollSpy.VERSION  = '3.3.4'
+  ScrollSpy.VERSION  = '3.3.5'
 
   ScrollSpy.DEFAULTS = {
     offset: 10
@@ -80104,7 +80244,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: tab.js v3.3.4
+ * Bootstrap: tab.js v3.3.5
  * http://getbootstrap.com/javascript/#tabs
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -80119,10 +80259,12 @@ if (typeof jQuery === 'undefined') {
   // ====================
 
   var Tab = function (element) {
+    // jscs:disable requireDollarBeforejQueryAssignment
     this.element = $(element)
+    // jscs:enable requireDollarBeforejQueryAssignment
   }
 
-  Tab.VERSION = '3.3.4'
+  Tab.VERSION = '3.3.5'
 
   Tab.TRANSITION_DURATION = 150
 
@@ -80170,7 +80312,7 @@ if (typeof jQuery === 'undefined') {
     var $active    = container.find('> .active')
     var transition = callback
       && $.support.transition
-      && (($active.length && $active.hasClass('fade')) || !!container.find('> .fade').length)
+      && ($active.length && $active.hasClass('fade') || !!container.find('> .fade').length)
 
     function next() {
       $active
@@ -80258,7 +80400,7 @@ if (typeof jQuery === 'undefined') {
 }(jQuery);
 
 /* ========================================================================
- * Bootstrap: affix.js v3.3.4
+ * Bootstrap: affix.js v3.3.5
  * http://getbootstrap.com/javascript/#affix
  * ========================================================================
  * Copyright 2011-2015 Twitter, Inc.
@@ -80287,7 +80429,7 @@ if (typeof jQuery === 'undefined') {
     this.checkPosition()
   }
 
-  Affix.VERSION  = '3.3.4'
+  Affix.VERSION  = '3.3.5'
 
   Affix.RESET    = 'affix affix-top affix-bottom'
 
@@ -80337,7 +80479,7 @@ if (typeof jQuery === 'undefined') {
     var offset       = this.options.offset
     var offsetTop    = offset.top
     var offsetBottom = offset.bottom
-    var scrollHeight = $(document.body).height()
+    var scrollHeight = Math.max($(document).height(), $(document.body).height())
 
     if (typeof offset != 'object')         offsetBottom = offsetTop = offset
     if (typeof offsetTop == 'function')    offsetTop    = offset.top(this.$element)
@@ -81751,7 +81893,7 @@ define('ember-validations/errors', ['exports', 'ember'], function (exports, Embe
   var set = Ember['default'].set;
 
   exports['default'] = Ember['default'].Object.extend({
-    unknownProperty: function(property) {
+    unknownProperty: function unknownProperty(property) {
       set(this, property, Ember['default'].A());
       return get(this, property);
     }
@@ -81762,12 +81904,12 @@ define('ember-validations/index', ['exports', 'ember-validations/mixin'], functi
 
   'use strict';
 
-  exports['default'] = {
-    Mixin: Mixin['default'],
-    validator: function(callback) {
-      return { callback: callback };
-    }
-  };
+  exports.validator = validator;
+
+  exports['default'] = Mixin['default'];
+  function validator(callback) {
+    return { callback: callback };
+  }
 
 });
 define('ember-validations/messages', ['exports', 'ember'], function (exports, Ember) {
@@ -81775,12 +81917,12 @@ define('ember-validations/messages', ['exports', 'ember'], function (exports, Em
   'use strict';
 
   exports['default'] = {
-    render: function(attribute, context) {
+    render: function render(attribute, context) {
       if (Ember['default'].I18n) {
         return Ember['default'].I18n.t('errors.' + attribute, context);
       } else {
-        var regex = new RegExp("{{(.*?)}}"),
-            attributeName = "";
+        var regex = new RegExp('{{(.*?)}}'),
+            attributeName = '';
         if (regex.test(this.defaults[attribute])) {
           attributeName = regex.exec(this.defaults[attribute])[1];
         }
@@ -81788,28 +81930,28 @@ define('ember-validations/messages', ['exports', 'ember'], function (exports, Em
       }
     },
     defaults: {
-      inclusion: "is not included in the list",
-      exclusion: "is reserved",
-      invalid: "is invalid",
-      confirmation: "doesn't match {{attribute}}",
-      accepted: "must be accepted",
-      empty: "can't be empty",
-      blank: "can't be blank",
-      present: "must be blank",
-      tooLong: "is too long (maximum is {{count}} characters)",
-      tooShort: "is too short (minimum is {{count}} characters)",
-      wrongLength: "is the wrong length (should be {{count}} characters)",
-      notANumber: "is not a number",
-      notAnInteger: "must be an integer",
-      greaterThan: "must be greater than {{count}}",
-      greaterThanOrEqualTo: "must be greater than or equal to {{count}}",
-      equalTo: "must be equal to {{count}}",
-      lessThan: "must be less than {{count}}",
-      lessThanOrEqualTo: "must be less than or equal to {{count}}",
-      otherThan: "must be other than {{count}}",
-      odd: "must be odd",
-      even: "must be even",
-      url: "is not a valid URL"
+      inclusion: 'is not included in the list',
+      exclusion: 'is reserved',
+      invalid: 'is invalid',
+      confirmation: 'doesn\'t match {{attribute}}',
+      accepted: 'must be accepted',
+      empty: 'can\'t be empty',
+      blank: 'can\'t be blank',
+      present: 'must be blank',
+      tooLong: 'is too long (maximum is {{count}} characters)',
+      tooShort: 'is too short (minimum is {{count}} characters)',
+      wrongLength: 'is the wrong length (should be {{count}} characters)',
+      notANumber: 'is not a number',
+      notAnInteger: 'must be an integer',
+      greaterThan: 'must be greater than {{count}}',
+      greaterThanOrEqualTo: 'must be greater than or equal to {{count}}',
+      equalTo: 'must be equal to {{count}}',
+      lessThan: 'must be less than {{count}}',
+      lessThanOrEqualTo: 'must be less than or equal to {{count}}',
+      otherThan: 'must be other than {{count}}',
+      odd: 'must be odd',
+      even: 'must be even',
+      url: 'is not a valid URL'
     }
   };
 
@@ -81822,9 +81964,9 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
   var set = Ember['default'].set;
 
   var setValidityMixin = Ember['default'].Mixin.create({
-    isValid: Ember['default'].computed('validators.@each.isValid', function() {
+    isValid: Ember['default'].computed('validators.@each.isValid', function () {
       var compactValidators = get(this, 'validators').compact();
-      var filteredValidators = Ember['default'].EnumerableUtils.filter(compactValidators, function(validator) {
+      var filteredValidators = compactValidators.filter(function (validator) {
         return !get(validator, 'isValid');
       });
 
@@ -81833,18 +81975,18 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
     isInvalid: Ember['default'].computed.not('isValid')
   });
 
-  var pushValidatableObject = function(model, property) {
+  var pushValidatableObject = function pushValidatableObject(model, property) {
     var content = get(model, property);
 
     model.removeObserver(property, pushValidatableObject);
     if (Ember['default'].isArray(content)) {
-      model.validators.pushObject(ArrayValidatorProxy.create({model: model, property: property, contentBinding: 'model.' + property}));
+      model.validators.pushObject(ArrayValidatorProxy.create({ model: model, property: property, contentBinding: 'model.' + property }));
     } else {
       model.validators.pushObject(content);
     }
   };
 
-  var lookupValidator = function(validatorName) {
+  var lookupValidator = function lookupValidator(validatorName) {
     var container = get(this, 'container');
     var service = container.lookup('service:validations');
     var validators = [];
@@ -81859,19 +82001,23 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
     if (cache[validatorName]) {
       validators = validators.concat(cache[validatorName]);
     } else {
-      var local = container.lookupFactory('validator:local/'+validatorName);
-      var remote = container.lookupFactory('validator:remote/'+validatorName);
+      var local = container.lookupFactory('validator:local/' + validatorName);
+      var remote = container.lookupFactory('validator:remote/' + validatorName);
 
-      if (local || remote) { validators = validators.concat([local, remote]); }
-      else {
-        var base = container.lookupFactory('validator:'+validatorName);
+      if (local || remote) {
+        validators = validators.concat([local, remote]);
+      } else {
+        var base = container.lookupFactory('validator:' + validatorName);
 
-        if (base) { validators = validators.concat([base]); }
-        else {
-          local = container.lookupFactory('ember-validations@validator:local/'+validatorName);
-          remote = container.lookupFactory('ember-validations@validator:remote/'+validatorName);
+        if (base) {
+          validators = validators.concat([base]);
+        } else {
+          local = container.lookupFactory('ember-validations@validator:local/' + validatorName);
+          remote = container.lookupFactory('ember-validations@validator:remote/' + validatorName);
 
-          if (local || remote) { validators = validators.concat([local, remote]); }
+          if (local || remote) {
+            validators = validators.concat([local, remote]);
+          }
         }
       }
 
@@ -81879,17 +82025,17 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
     }
 
     if (Ember['default'].isEmpty(validators)) {
-      Ember['default'].warn('Could not find the "'+validatorName+'" validator.');
+      Ember['default'].warn('Could not find the "' + validatorName + '" validator.');
     }
 
     return validators;
   };
 
   var ArrayValidatorProxy = Ember['default'].ArrayProxy.extend(setValidityMixin, {
-    validate: function() {
+    validate: function validate() {
       return this._validate();
     },
-    _validate: Ember['default'].on('init', function() {
+    _validate: Ember['default'].on('init', function () {
       var promises = get(this, 'content').invoke('_validate').without(undefined);
       return Ember['default'].RSVP.all(promises);
     }),
@@ -81897,7 +82043,7 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
   });
 
   exports['default'] = Ember['default'].Mixin.create(setValidityMixin, {
-    init: function() {
+    init: function init() {
       this._super();
       this.errors = Errors['default'].create();
       this.dependentValidationKeys = {};
@@ -81906,10 +82052,10 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
         this.validations = {};
       }
       this.buildValidators();
-      this.validators.forEach(function(validator) {
-        validator.addObserver('errors.[]', this, function(sender) {
+      this.validators.forEach(function (validator) {
+        validator.addObserver('errors.[]', this, function (sender) {
           var errors = Ember['default'].A();
-          this.validators.forEach(function(validator) {
+          this.validators.forEach(function (validator) {
             if (validator.property === sender.property) {
               errors.addObjects(validator.errors);
             }
@@ -81918,7 +82064,7 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
         });
       }, this);
     },
-    buildValidators: function() {
+    buildValidators: function buildValidators() {
       var property;
 
       for (property in this.validations) {
@@ -81929,10 +82075,10 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
         }
       }
     },
-    buildRuleValidator: function(property) {
-      var pushValidator = function(validator) {
+    buildRuleValidator: function buildRuleValidator(property) {
+      var pushValidator = function pushValidator(validator) {
         if (validator) {
-          this.validators.pushObject(validator.create({model: this, property: property, options: this.validations[property][validatorName]}));
+          this.validators.pushObject(validator.create({ model: this, property: property, options: this.validations[property][validatorName] }));
         }
       };
 
@@ -81940,9 +82086,9 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
         this.validations[property] = { inline: this.validations[property] };
       }
 
-      var createInlineClass = function(callback) {
+      var createInlineClass = function createInlineClass(callback) {
         return Base['default'].extend({
-          call: function() {
+          call: function call() {
             var errorMessage = this.callback.call(this);
 
             if (errorMessage) {
@@ -81957,28 +82103,28 @@ define('ember-validations/mixin', ['exports', 'ember', 'ember-validations/errors
         if (validatorName === 'inline') {
           pushValidator.call(this, createInlineClass(this.validations[property][validatorName].callback));
         } else if (this.validations[property].hasOwnProperty(validatorName)) {
-          Ember['default'].EnumerableUtils.forEach(lookupValidator.call(this, validatorName), pushValidator, this);
+          lookupValidator.call(this, validatorName).forEach(pushValidator, this);
         }
       }
     },
-    buildObjectValidator: function(property) {
+    buildObjectValidator: function buildObjectValidator(property) {
       if (Ember['default'].isNone(get(this, property))) {
         this.addObserver(property, this, pushValidatableObject);
       } else {
         pushValidatableObject(this, property);
       }
     },
-    validate: function() {
+    validate: function validate() {
       var self = this;
-      return this._validate().then(function(vals) {
+      return this._validate().then(function (vals) {
         var errors = get(self, 'errors');
-        if (Ember['default'].EnumerableUtils.indexOf(vals, false) > -1) {
+        if (vals.indexOf(false) > -1) {
           return Ember['default'].RSVP.reject(errors);
         }
         return errors;
       });
     },
-    _validate: Ember['default'].on('init', function() {
+    _validate: Ember['default'].on('init', function () {
       var promises = this.validators.invoke('_validate').without(undefined);
       return Ember['default'].RSVP.all(promises);
     })
@@ -82003,7 +82149,7 @@ define('ember-validations/validators/base', ['exports', 'ember'], function (expo
   var set = Ember['default'].set;
 
   exports['default'] = Ember['default'].Object.extend({
-    init: function() {
+    init: function init() {
       set(this, 'errors', Ember['default'].A());
       this.dependentValidationKeys = Ember['default'].A();
       this.conditionals = {
@@ -82012,22 +82158,22 @@ define('ember-validations/validators/base', ['exports', 'ember'], function (expo
       };
       this.model.addObserver(this.property, this, this._validate);
     },
-    addObserversForDependentValidationKeys: Ember['default'].on('init', function() {
-      this.dependentValidationKeys.forEach(function(key) {
+    addObserversForDependentValidationKeys: Ember['default'].on('init', function () {
+      this.dependentValidationKeys.forEach(function (key) {
         this.model.addObserver(key, this, this._validate);
       }, this);
     }),
-    pushDependentValidationKeyToModel: Ember['default'].on('init', function() {
+    pushDependentValidationKeyToModel: Ember['default'].on('init', function () {
       var model = get(this, 'model');
       if (model.dependentValidationKeys[this.property] === undefined) {
         model.dependentValidationKeys[this.property] = Ember['default'].A();
       }
       model.dependentValidationKeys[this.property].addObjects(this.dependentValidationKeys);
     }),
-    call: function () {
+    call: function call() {
       throw 'Not implemented!';
     },
-    unknownProperty: function(key) {
+    unknownProperty: function unknownProperty(key) {
       var model = get(this, 'model');
       if (model) {
         return get(model, key);
@@ -82035,9 +82181,9 @@ define('ember-validations/validators/base', ['exports', 'ember'], function (expo
     },
     isValid: Ember['default'].computed.empty('errors.[]'),
     isInvalid: Ember['default'].computed.not('isValid'),
-    validate: function() {
+    validate: function validate() {
       var self = this;
-      return this._validate().then(function(success) {
+      return this._validate().then(function (success) {
         // Convert validation failures to rejects.
         var errors = get(self, 'model.errors');
         if (success) {
@@ -82047,7 +82193,7 @@ define('ember-validations/validators/base', ['exports', 'ember'], function (expo
         }
       });
     },
-    _validate: Ember['default'].on('init', function() {
+    _validate: Ember['default'].on('init', function () {
       this.errors.clear();
       if (this.canValidate()) {
         this.call();
@@ -82058,23 +82204,23 @@ define('ember-validations/validators/base', ['exports', 'ember'], function (expo
         return Ember['default'].RSVP.resolve(false);
       }
     }),
-    canValidate: function() {
-      if (typeof(this.conditionals) === 'object') {
+    canValidate: function canValidate() {
+      if (typeof this.conditionals === 'object') {
         if (this.conditionals['if']) {
-          if (typeof(this.conditionals['if']) === 'function') {
+          if (typeof this.conditionals['if'] === 'function') {
             return this.conditionals['if'](this.model, this.property);
-          } else if (typeof(this.conditionals['if']) === 'string') {
-            if (typeof(this.model[this.conditionals['if']]) === 'function') {
+          } else if (typeof this.conditionals['if'] === 'string') {
+            if (typeof this.model[this.conditionals['if']] === 'function') {
               return this.model[this.conditionals['if']]();
             } else {
               return get(this.model, this.conditionals['if']);
             }
           }
         } else if (this.conditionals.unless) {
-          if (typeof(this.conditionals.unless) === 'function') {
+          if (typeof this.conditionals.unless === 'function') {
             return !this.conditionals.unless(this.model, this.property);
-          } else if (typeof(this.conditionals.unless) === 'string') {
-            if (typeof(this.model[this.conditionals.unless]) === 'function') {
+          } else if (typeof this.conditionals.unless === 'string') {
+            if (typeof this.model[this.conditionals.unless] === 'function') {
               return !this.model[this.conditionals.unless]();
             } else {
               return !get(this.model, this.conditionals.unless);
@@ -82087,15 +82233,22 @@ define('ember-validations/validators/base', ['exports', 'ember'], function (expo
         return true;
       }
     },
-    compare: function (a, b, operator) {
+    compare: function compare(a, b, operator) {
       switch (operator) {
-        case '==':  return a == b; // jshint ignore:line
-        case '===': return a === b;
-        case '>=':  return a >= b;
-        case '<=':  return a <= b;
-        case '>':   return a > b;
-        case '<':   return a < b;
-        default:    return false;
+        case '==':
+          return a == b; // jshint ignore:line
+        case '===':
+          return a === b;
+        case '>=':
+          return a >= b;
+        case '<=':
+          return a <= b;
+        case '>':
+          return a > b;
+        case '<':
+          return a < b;
+        default:
+          return false;
       }
     }
   });
@@ -82109,7 +82262,7 @@ define('ember-validations/validators/local/absence', ['exports', 'ember', 'ember
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this._super();
       /*jshint expr:true*/
       if (this.options === true) {
@@ -82120,7 +82273,7 @@ define('ember-validations/validators/local/absence', ['exports', 'ember', 'ember
         set(this, 'options.message', Messages['default'].render('present', this.options));
       }
     },
-    call: function() {
+    call: function call() {
       if (!Ember['default'].isEmpty(get(this.model, this.property))) {
         this.errors.pushObject(this.options.message);
       }
@@ -82136,7 +82289,7 @@ define('ember-validations/validators/local/acceptance', ['exports', 'ember', 'em
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this._super();
       /*jshint expr:true*/
       if (this.options === true) {
@@ -82147,7 +82300,7 @@ define('ember-validations/validators/local/acceptance', ['exports', 'ember', 'em
         set(this, 'options.message', Messages['default'].render('accepted', this.options));
       }
     },
-    call: function() {
+    call: function call() {
       if (this.options.accept) {
         if (get(this.model, this.property) !== this.options.accept) {
           this.errors.pushObject(this.options.message);
@@ -82167,7 +82320,7 @@ define('ember-validations/validators/local/confirmation', ['exports', 'ember', '
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this.originalProperty = this.property;
       this.property = this.property + 'Confirmation';
       this._super();
@@ -82178,11 +82331,11 @@ define('ember-validations/validators/local/confirmation', ['exports', 'ember', '
         set(this, 'options', { message: Messages['default'].render('confirmation', this.options) });
       }
     },
-    call: function() {
+    call: function call() {
       var original = get(this.model, this.originalProperty);
       var confirmation = get(this.model, this.property);
 
-      if(!Ember['default'].isEmpty(original) || !Ember['default'].isEmpty(confirmation)) {
+      if (!Ember['default'].isEmpty(original) || !Ember['default'].isEmpty(confirmation)) {
         if (original !== confirmation) {
           this.errors.pushObject(this.options.message);
         }
@@ -82199,7 +82352,7 @@ define('ember-validations/validators/local/exclusion', ['exports', 'ember', 'emb
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this._super();
       if (this.options.constructor === Array) {
         set(this, 'options', { 'in': this.options });
@@ -82209,7 +82362,7 @@ define('ember-validations/validators/local/exclusion', ['exports', 'ember', 'emb
         set(this, 'options.message', Messages['default'].render('exclusion', this.options));
       }
     },
-    call: function() {
+    call: function call() {
       /*jshint expr:true*/
       var lower, upper;
 
@@ -82241,17 +82394,17 @@ define('ember-validations/validators/local/format', ['exports', 'ember', 'ember-
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this._super();
       if (this.options.constructor === RegExp) {
         set(this, 'options', { 'with': this.options });
       }
 
       if (this.options.message === undefined) {
-        set(this, 'options.message',  Messages['default'].render('invalid', this.options));
+        set(this, 'options.message', Messages['default'].render('invalid', this.options));
       }
-     },
-     call: function() {
+    },
+    call: function call() {
       if (Ember['default'].isEmpty(get(this.model, this.property))) {
         if (this.options.allowBlank === undefined) {
           this.errors.pushObject(this.options.message);
@@ -82273,7 +82426,7 @@ define('ember-validations/validators/local/inclusion', ['exports', 'ember', 'emb
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this._super();
       if (this.options.constructor === Array) {
         set(this, 'options', { 'in': this.options });
@@ -82283,7 +82436,7 @@ define('ember-validations/validators/local/inclusion', ['exports', 'ember', 'emb
         set(this, 'options.message', Messages['default'].render('inclusion', this.options));
       }
     },
-    call: function() {
+    call: function call() {
       var lower, upper;
       if (Ember['default'].isEmpty(get(this.model, this.property))) {
         if (this.options.allowBlank === undefined) {
@@ -82313,11 +82466,11 @@ define('ember-validations/validators/local/length', ['exports', 'ember', 'ember-
   var set = Ember['default'].set;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       var index, key;
       this._super();
       /*jshint expr:true*/
-      if (typeof(this.options) === 'number') {
+      if (typeof this.options === 'number') {
         set(this, 'options', { 'is': this.options });
       }
 
@@ -82332,53 +82485,56 @@ define('ember-validations/validators/local/length', ['exports', 'ember', 'ember-
         }
       }
 
-      this.options.tokenizer = this.options.tokenizer || function(value) { return value.toString().split(''); };
+      this.options.tokenizer = this.options.tokenizer || function (value) {
+        return value.toString().split('');
+      };
       // if (typeof(this.options.tokenizer) === 'function') {
-        // debugger;
-        // // this.tokenizedLength = new Function('value', 'return '
+      // debugger;
+      // // this.tokenizedLength = new Function('value', 'return '
       // } else {
-        // this.tokenizedLength = new Function('value', 'return (value || "").' + (this.options.tokenizer || 'split("")') + '.length');
+      // this.tokenizedLength = new Function('value', 'return (value || "").' + (this.options.tokenizer || 'split("")') + '.length');
       // }
     },
     CHECKS: {
-      'is'      : '==',
-      'minimum' : '>=',
-      'maximum' : '<='
+      'is': '==',
+      'minimum': '>=',
+      'maximum': '<='
     },
     MESSAGES: {
-      'is'      : 'wrongLength',
-      'minimum' : 'tooShort',
-      'maximum' : 'tooLong'
+      'is': 'wrongLength',
+      'minimum': 'tooShort',
+      'maximum': 'tooLong'
     },
-    getValue: function(key) {
+    getValue: function getValue(key) {
       if (this.options[key].constructor === String) {
         return get(this.model, this.options[key]) || 0;
       } else {
         return this.options[key];
       }
     },
-    messageKeys: function() {
-      return Ember['default'].keys(this.MESSAGES);
+    messageKeys: function messageKeys() {
+      return Object.keys(this.MESSAGES);
     },
-    checkKeys: function() {
-      return Ember['default'].keys(this.CHECKS);
+    checkKeys: function checkKeys() {
+      return Object.keys(this.CHECKS);
     },
-    renderMessageFor: function(key) {
-      var options = {count: this.getValue(key)}, _key;
+    renderMessageFor: function renderMessageFor(key) {
+      var options = { count: this.getValue(key) },
+          _key;
       for (_key in this.options) {
         options[_key] = this.options[_key];
       }
 
       return this.options.messages[this.MESSAGES[key]] || Messages['default'].render(this.MESSAGES[key], options);
     },
-    renderBlankMessage: function() {
+    renderBlankMessage: function renderBlankMessage() {
       if (this.options.is) {
         return this.renderMessageFor('is');
       } else if (this.options.minimum) {
         return this.renderMessageFor('minimum');
       }
     },
-    call: function() {
+    call: function call() {
       var key, comparisonResult;
 
       if (Ember['default'].isEmpty(get(this.model, this.property))) {
@@ -82391,11 +82547,7 @@ define('ember-validations/validators/local/length', ['exports', 'ember', 'ember-
             continue;
           }
 
-          comparisonResult = this.compare(
-            this.options.tokenizer(get(this.model, this.property)).length,
-            this.getValue(key),
-            this.CHECKS[key]
-          );
+          comparisonResult = this.compare(this.options.tokenizer(get(this.model, this.property)).length, this.getValue(key), this.CHECKS[key]);
           if (!comparisonResult) {
             this.errors.pushObject(this.renderMessageFor(key));
           }
@@ -82412,7 +82564,7 @@ define('ember-validations/validators/local/numericality', ['exports', 'ember', '
   var get = Ember['default'].get;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       /*jshint expr:true*/
       var index, keys, key;
       this._super();
@@ -82434,8 +82586,8 @@ define('ember-validations/validators/local/numericality', ['exports', 'ember', '
         this.options.messages.onlyInteger = Messages['default'].render('notAnInteger', this.options);
       }
 
-      keys = Ember['default'].keys(this.CHECKS).concat(['odd', 'even']);
-      for(index = 0; index < keys.length; index++) {
+      keys = Object.keys(this.CHECKS).concat(['odd', 'even']);
+      for (index = 0; index < keys.length; index++) {
         key = keys[index];
 
         var prop = this.options[key];
@@ -82457,13 +82609,13 @@ define('ember-validations/validators/local/numericality', ['exports', 'ember', '
       }
     },
     CHECKS: {
-      equalTo              : '===',
-      greaterThan          : '>',
-      greaterThanOrEqualTo : '>=',
-      lessThan             : '<',
-      lessThanOrEqualTo    : '<='
+      equalTo: '===',
+      greaterThan: '>',
+      greaterThanOrEqualTo: '>=',
+      lessThan: '<',
+      lessThanOrEqualTo: '<='
     },
-    call: function() {
+    call: function call() {
       var check, checkValue, comparisonResult;
 
       if (Ember['default'].isEmpty(get(this.model, this.property))) {
@@ -82472,9 +82624,9 @@ define('ember-validations/validators/local/numericality', ['exports', 'ember', '
         }
       } else if (!Patterns['default'].numericality.test(get(this.model, this.property))) {
         this.errors.pushObject(this.options.messages.numericality);
-      } else if (this.options.onlyInteger === true && !(/^[+\-]?\d+$/.test(get(this.model, this.property)))) {
+      } else if (this.options.onlyInteger === true && !/^[+\-]?\d+$/.test(get(this.model, this.property))) {
         this.errors.pushObject(this.options.messages.onlyInteger);
-      } else if (this.options.odd  && parseInt(get(this.model, this.property), 10) % 2 === 0) {
+      } else if (this.options.odd && parseInt(get(this.model, this.property), 10) % 2 === 0) {
         this.errors.pushObject(this.options.messages.odd);
       } else if (this.options.even && parseInt(get(this.model, this.property), 10) % 2 !== 0) {
         this.errors.pushObject(this.options.messages.even);
@@ -82490,11 +82642,7 @@ define('ember-validations/validators/local/numericality', ['exports', 'ember', '
             checkValue = get(this.model, this.options[check]);
           }
 
-          comparisonResult = this.compare(
-            get(this.model, this.property),
-            checkValue,
-            this.CHECKS[check]
-          );
+          comparisonResult = this.compare(get(this.model, this.property), checkValue, this.CHECKS[check]);
 
           if (!comparisonResult) {
             this.errors.pushObject(this.options.messages[check]);
@@ -82512,7 +82660,7 @@ define('ember-validations/validators/local/presence', ['exports', 'ember', 'embe
   var get = Ember['default'].get;
 
   exports['default'] = Base['default'].extend({
-    init: function() {
+    init: function init() {
       this._super();
       /*jshint expr:true*/
       if (this.options === true) {
@@ -82523,7 +82671,7 @@ define('ember-validations/validators/local/presence', ['exports', 'ember', 'embe
         this.options.message = Messages['default'].render('blank', this.options);
       }
     },
-    call: function() {
+    call: function call() {
       if (Ember['default'].isBlank(get(this.model, this.property))) {
         this.errors.pushObject(this.options.message);
       }
