@@ -28,4 +28,21 @@ contenido = contenido.replace('VERSION', version)
 
 archivo_destino.write(contenido)
 archivo_destino.close()
+
+
+origen_version = "public/version_template.json"
+destino_version = "public/version.json"
+
+archivo_version_origen = open(origen_version, 'rt')
+archivo_version_destino = open(destino_version, 'wt')
+
+contenido = archivo_version_origen.read()
+contenido = contenido.replace('VERSION', version)
+
+archivo_version_destino.write(contenido)
+archivo_version_destino.close()
+
+
+
+
 print "Actualizando los links de descarga desde: " + directorio + '/' + version
