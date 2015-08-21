@@ -29,6 +29,7 @@ ul#descargas li {
 .footer {
   font-size: 1.2em;
   padding: 20px;
+  margin-top: 80px;
 }
 
 
@@ -56,4 +57,21 @@ img {
   margin-top: 3px !important;
   border-bottom-width: 4px !important;
   opacity: 0.75 !important;
+}
+
+
+.acercade {
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 200;
+  max-width: 800px;
+  margin: auto;
+}
+
+.acercade h1 {
+  margin-bottom: 45px;
+}
+
+.acercade p {
+  margin: 0px 0px 15px;
 }
