@@ -75,3 +75,14 @@ img {
 .acercade p {
   margin: 0px 0px 15px;
 }
+
+
+.quienes-somos {
+  padding-top: 100px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.quienes-somos h1 {
+  margin-bottom: 45px;
+}
