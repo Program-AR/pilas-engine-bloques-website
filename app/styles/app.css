@@ -91,3 +91,8 @@ img {
 img {
   height: auto;
 }
+
+
+img.logoProgramar {
+  margin-bottom: 49px;
+}
