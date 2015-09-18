@@ -8,7 +8,7 @@
 
 
   <div class='descargas center'>
-    <p><span>Descargá la última versión para los sistemas:</span></p>
+    <p><span>Descargá la versión {{model.version}} para tu sistema operativo:</span></p>
 
     <ul id='descargas'>
       <li><a class='btn btn-success btn-lg' {{bind-attr href='model.link_deb'}}>{{fa-icon "linux"}} &nbsp; Huayra Linux</a></li>
@@ -28,7 +28,7 @@
 
 
 <div class="acercade">
-  <h1>Acerca de pilas-engine-bloques</h1>
+  <h1>Acerca de Pilas Bloques</h1>
 
   <p>
     Pilas Bloques es una nueva aplicación desarrollada para comenzar
@@ -80,23 +80,41 @@
 </div>
 
 <div class="container">
+  <div class="row">
+    <div class="col-sm-4">
+    </div>
+
+    <div class="col-sm-4">
+      <a href="http://program.ar/" target="_blank"><img width="360" height="100" src="imagenes/logos/logo-programar.jpg" class="logoProgramar attachment-full" alt="logo-educacion"></a>
+    </div>
+
+    <div class="col-sm-4">
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
+
+
 
   <div class="row">
-  	<div class="col-sm-4">
+  	<div class="col-sm-3">
   		<a href="http://www.fundacionsadosky.org.ar" target="_blank"><img width="360" height="100" src="imagenes/logos/logo-sadosky.jpg" class="attachment-full" alt="logo-sadosky"></a>
   	</div>
-  	<div class="col-sm-4">
+  	<div class="col-sm-3">
   			<a href="http://www.educ.ar/" target="_blank"><img width="360" height="100" src="imagenes/logos/logo-educar.jpg" class="attachment-full" alt="logo-educar"></a>
   	</div>
-  	<div class="col-sm-4">
+  	<div class="col-sm-3">
   			<a href="http://www.conectarigualdad.gob.ar/" target="_blank"><img width="360" height="100" src="imagenes/logos/logo-conectar.jpg" class="attachment-full" alt="logo-conectar"></a>
+  	</div>
+  	<div class="col-sm-3">
+  			<a href="http://pnide.educacion.gob.ar/" target="_blank"><img width="360" src="imagenes/logos/logo-pnide.jpg" class="attachment-full" alt="logo-conectar"></a>
   	</div>
   </div>
 </div>
 
 <div class="container">
-
-
   <div class="row">
   	<div class="col-sm-4">
   		<a href="http://www.mincyt.gob.ar/" target="_blank"><img width="360" height="100" src="imagenes/logos/logo-minsyt.jpg" class="attachment-full" alt="logo-minsyt"></a>
@@ -111,10 +129,11 @@
 </div>
 
 
+
 <div class='footer center'>
   <p>Para obtener más información, <a href='https://github.com/hugoruscitti/pilas-engine-bloques'>visitá nuestro repositorio</a>
 en github {{fa-icon "fa-github-alt"}}.</p>
 
-  <p class='small'>La versión mas reciente de pilas-engine-bloques es la {{model.version}}, publicada
+  <p class='small'>La versión mas reciente de Pilas Bloques es la {{model.version}}, publicada
     en la fecha: {{model.fecha}}.</p>
 </div>
