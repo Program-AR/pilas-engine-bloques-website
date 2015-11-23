@@ -32,7 +32,7 @@ deploy:
 	@echo " * Subiendo los cambios a: "
 	@echo ""
 	@echo "                            http://bloques.pilas-engine.com.ar "
-	@echo "                            http://hugoruscitti.github.io/pilas-engine-bloques) "
+	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
 	@echo "                            http://pilasbloques.programar.gob.ar "
 	@echo ""
 	@echo ""
@@ -55,7 +55,7 @@ deploy_iframe:
 iniciar:
 	npm install
 	bower install
-	cd ../; git clone http://github.com/hugoruscitti/pilas-engine-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
+	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
 
 
 release:
