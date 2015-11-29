@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function() {
+
     return {
       version: "0.8.7",
       fecha: "2015-09-18",
