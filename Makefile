@@ -14,13 +14,14 @@ all:
 	@echo ""
 	@echo "   $(V)deploy_iframe$(N)  Sube el sitio completo a la web."
 	@echo ""
-	
+
 preview:
 	ember serve
 
 deploy:
-	echo "\n" >> README.md
-	git add .
+	@echo "$(V)generando el deploy completo del sitio ...$(N)"
+	@echo "\n" >> README.md
+	@git add .
 	git commit -m "actualizacion..."
 	git push
 	ember build --environment development
@@ -28,10 +29,9 @@ deploy:
 	cp -r -f dist/* ../ghpages__pilas-engine-bloques-website/
 	cp CNAME ../ghpages__pilas-engine-bloques-website/
 	cd ../ghpages__pilas-engine-bloques-website/; git add --all .; git commit -m "update"; git push origin gh-pages
-	
 	@echo ""
 	@echo ""
-	@echo " * Subiendo los cambios a: "
+	@echo " $(V)* Subiendo los cambios a:$(N) "
 	@echo ""
 	@echo "                            http://bloques.pilas-engine.com.ar "
 	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
@@ -55,12 +55,17 @@ deploy_iframe:
 
 
 iniciar:
+	@echo "$(V)instalando dependencias ...$(N)"
 	npm install
 	bower install
+	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
 	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
+
+iniciar_subcarpeta_online:
+	@echo "$(V)clonando pilas-engine-bloques para servir en /online ...$(N)"
+	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git pilas-engine-bloques; cd pilas-engine-bloques; git checkout gh-pages;
+
 
 
 release:
 	@python extras/obtener_links.py
-
-
