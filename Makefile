@@ -1,18 +1,23 @@
 N=[0m
 V=[01;32m
-
+Y=[01;33m
 
 
 all:
 	@echo "Comandos disponibles:"
 	@echo ""
-	@echo "   $(V)release $(N)       Actualizando releases y descargas."
+	@echo " $(Y)Comandos para desarrolladores:$(N) "
 	@echo ""
-	@echo "   $(V)iniciar $(N)       Instala todas las dependencias."
-	@echo "   $(V)preview $(N)       Muestra el sitio de forma local."
-	@echo "   $(V)deploy  $(N)       Sube el sitio completo a la web."
+	@echo "   $(V)release $(N)                   Actualizando releases y descargas."
 	@echo ""
-	@echo "   $(V)deploy_iframe$(N)  Sube el sitio completo a la web."
+	@echo "   $(V)iniciar $(N)                   Instala todas las dependencias."
+	@echo "   $(V)iniciar_subcarpeta_online$(N)  Instala dependencias deploy online."
+	@echo "   $(V)preview $(N)                   Muestra el sitio de forma local."
+	@echo ""
+	@echo " $(Y)Comandos para publicar en http://pilasbloques.programar.gob.ar:$(N) "
+	@echo ""
+	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web."
+	@echo "   $(V)deploy_online$(N)              Sube la ruta /online."
 	@echo ""
 
 preview:
@@ -39,20 +44,19 @@ deploy:
 	@echo ""
 	@echo ""
 
-deploy_iframe:
+deploy_online:
+	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
 	cd ../pilas-engine-bloques/; make compilar_web
-	cp -r ../pilas-engine-bloques/dist_web/ public/web
-	echo "\n" >> README.md
-	git add public/web
-	git add README.md
-	git commit -m "actualizando la aplicación web (para usar desde iframe)..."
+	cd ../ghpages__pilas-engine-bloques-website; git pull origin gh-pages
+	cp -r ../pilas-engine-bloques/dist_web/ ../ghpages__pilas-engine-bloques-website/online
+	cd ../ghpages__pilas-engine-bloques-website/; git add --all .; git commit -m "update /online"; git push origin gh-pages
 	@echo ""
-	@echo " * Se realizó solamente el commit. Te faltaría ejecutar: "
-	@echo "      "
-	@echo "      make deploy"
-	@echo "      "
-
-
+	@echo ""
+	@echo " $(V)* Subiendo la ruta /online en:$(N) "
+	@echo ""
+	@echo "                            http://pilasbloques.programar.gob.ar/online "
+	@echo ""
+	@echo ""
 
 iniciar:
 	@echo "$(V)instalando dependencias ...$(N)"
@@ -63,8 +67,7 @@ iniciar:
 
 iniciar_subcarpeta_online:
 	@echo "$(V)clonando pilas-engine-bloques para servir en /online ...$(N)"
-	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git pilas-engine-bloques; cd pilas-engine-bloques; git checkout gh-pages;
-
+	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git pilas-engine-bloques; cd pilas-engine-bloques; make full;
 
 
 release:
