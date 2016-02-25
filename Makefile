@@ -81,7 +81,7 @@ deploy:
 	@echo ""
 	@echo ""
 
-__deploy_online_ghpages:
+deploy_online:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
 	cd ../pilas-engine-bloques; git pull
 	cd ../pilas-engine-bloques/; make compilar_web
