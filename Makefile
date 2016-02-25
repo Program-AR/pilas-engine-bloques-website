@@ -19,11 +19,16 @@ all:
 	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web."
 	@echo "   $(V)deploy_online$(N)              Sube la ruta /online."
 	@echo ""
+	@echo " $(Y)Comandos EN DESUSO:$(N) "
+	@echo ""
+	@echo "   $(V)__deploy_ghpages  $(N)                   Sube el sitio completo a la web."
+	@echo "   $(V)__deploy_online_ghpages$(N)              Sube la ruta /online."
+	@echo ""
 
 preview:
 	ember serve
 
-deploy:
+__deploy_ghpages:
 	@echo "$(V)generando el deploy completo del sitio ...$(N)"
 	@echo "\n" >> README.md
 	@git add .
@@ -44,7 +49,7 @@ deploy:
 	@echo ""
 	@echo ""
 
-deploy_online:
+__deploy_online_ghpages:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
 	cd ../pilas-engine-bloques/; make compilar_web
 	cd ../ghpages__pilas-engine-bloques-website; git pull origin gh-pages
@@ -57,6 +62,38 @@ deploy_online:
 	@echo "                            http://pilasbloques.programar.gob.ar/online "
 	@echo ""
 	@echo ""
+
+deploy:
+	@echo "$(V)generando el deploy completo del sitio ...$(N)"
+	@echo "\n" >> README.md
+	@git add .
+	git commit -m "actualizacion..."
+	git push
+	ember build --environment development
+	scp -r -f dist/* pilasbloques@www.daleaceptar.gob.ar:~/pilasbloques/
+	@echo ""
+	@echo ""
+	@echo " $(V)* Subiendo los cambios a:$(N) "
+	@echo ""
+	@echo "                            http://bloques.pilas-engine.com.ar "
+	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
+	@echo "                            http://pilasbloques.programar.gob.ar "
+	@echo ""
+	@echo ""
+
+__deploy_online_ghpages:
+	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
+	cd ../pilas-engine-bloques; git pull
+	cd ../pilas-engine-bloques/; make compilar_web
+	scp -r -f ../pilas-engine-bloques/dist_web/* pilasbloques@www.daleaceptar.gob.ar:~/pilasbloques/online/
+	@echo ""
+	@echo ""
+	@echo " $(V)* Subiendo la ruta /online en:$(N) "
+	@echo ""
+	@echo "                            http://pilasbloques.programar.gob.ar/online "
+	@echo ""
+	@echo ""
+
 
 iniciar:
 	@echo "$(V)instalando dependencias ...$(N)"
