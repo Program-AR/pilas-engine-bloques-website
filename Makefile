@@ -16,52 +16,14 @@ all:
 	@echo ""
 	@echo " $(Y)Comandos para publicar en http://pilasbloques.programar.gob.ar:$(N) "
 	@echo ""
-	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web."
-	@echo "   $(V)deploy_online$(N)              Sube la ruta /online."
-	@echo ""
-	@echo " $(Y)Comandos EN DESUSO:$(N) "
-	@echo ""
-	@echo "   $(V)__deploy_ghpages  $(N)                   Sube el sitio completo a la web."
-	@echo "   $(V)__deploy_online_ghpages$(N)              Sube la ruta /online."
+	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web (directorio temporal)."
+	@echo "   $(V)deploy_online$(N)              Sube la ruta /online (directorio temporal)."
+	@echo "   $(V)apply_deploy$(N)               Aplica el deploy, poniendo a la aplicación en producción."
+	@echo "   $(V)apply_deploy_no_backup$(N)     Similar al anterior, pero sin hacer backup."
 	@echo ""
 
 preview:
 	ember serve
-
-__deploy_ghpages:
-	@echo "$(V)generando el deploy completo del sitio ...$(N)"
-	@echo "\n" >> README.md
-	@git add .
-	git commit -m "actualizacion..."
-	git push
-	ember build --environment development
-	cd ../ghpages__pilas-engine-bloques-website; git pull origin gh-pages
-	cp -r -f dist/* ../ghpages__pilas-engine-bloques-website/
-	cp CNAME ../ghpages__pilas-engine-bloques-website/
-	cd ../ghpages__pilas-engine-bloques-website/; git add --all .; git commit -m "update"; git push origin gh-pages
-	@echo ""
-	@echo ""
-	@echo " $(V)* Subiendo los cambios a:$(N) "
-	@echo ""
-	@echo "                            http://bloques.pilas-engine.com.ar "
-	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
-	@echo "                            http://pilasbloques.programar.gob.ar "
-	@echo ""
-	@echo ""
-
-__deploy_online_ghpages:
-	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
-	cd ../pilas-engine-bloques/; make compilar_web
-	cd ../ghpages__pilas-engine-bloques-website; git pull origin gh-pages
-	cp -r ../pilas-engine-bloques/dist_web/ ../ghpages__pilas-engine-bloques-website/online
-	cd ../ghpages__pilas-engine-bloques-website/; git add --all .; git commit -m "update /online"; git push origin gh-pages
-	@echo ""
-	@echo ""
-	@echo " $(V)* Subiendo la ruta /online en:$(N) "
-	@echo ""
-	@echo "                            http://pilasbloques.programar.gob.ar/online "
-	@echo ""
-	@echo ""
 
 deploy:
 	@echo "$(V)generando el deploy completo del sitio ...$(N)"
@@ -86,7 +48,6 @@ deploy_online:
 	@echo "                            http://pilasbloques.programar.gob.ar/online "
 	@echo ""
 	@echo ""
-
 
 apply_deploy:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv pilasbloques/ "__backups/activo_hasta_$(date +%F-%T)"'
