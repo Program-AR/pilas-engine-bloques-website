@@ -73,13 +73,6 @@ deploy:
 	scp -r dist/. pilasbloques@www.daleaceptar.gob.ar:new/
 	@echo ""
 	@echo ""
-	@echo " $(V)* Subiendo los cambios a:$(N) "
-	@echo ""
-	@echo "                            http://bloques.pilas-engine.com.ar "
-	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
-	@echo "                            http://pilasbloques.programar.gob.ar "
-	@echo ""
-	@echo ""
 
 deploy_online:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
@@ -94,6 +87,21 @@ deploy_online:
 	@echo ""
 	@echo ""
 
+
+apply_deploy:
+	ssh pilasbloques@www.daleaceptar.gob.ar 'mv pilasbloques/ "__backups/activo_hasta_$(date +%F-%T)"'
+	make apply_deploy_no_backup
+	
+apply_deploy_no_backup:
+	ssh pilasbloques@www.daleaceptar.gob.ar 'mv new pilasbloques'
+	@echo ""
+	@echo " $(V)* Publicando la aplicaci´øn en:$(N) "
+	@echo ""
+	@echo "                            http://bloques.pilas-engine.com.ar "
+	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
+	@echo "                            http://pilasbloques.programar.gob.ar "
+	@echo ""
+	@echo ""
 
 iniciar:
 	@echo "$(V)instalando dependencias ...$(N)"
