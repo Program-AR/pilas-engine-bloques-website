@@ -70,7 +70,7 @@ deploy:
 	git commit -m "actualizacion..."
 	git push
 	ember build --environment development
-	scp -r -f -v dist pilasbloques@www.daleaceptar.gob.ar:~/new/
+	scp -r -f -v dist pilasbloques@www.daleaceptar.gob.ar:new
 	@echo ""
 	@echo ""
 	@echo " $(V)* Subiendo los cambios a:$(N) "
@@ -85,7 +85,7 @@ deploy_online:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
 	cd ../pilas-engine-bloques; git pull
 	cd ../pilas-engine-bloques/; make compilar_web
-	scp -r -f -v ../pilas-engine-bloques/dist_web pilasbloques@www.daleaceptar.gob.ar:~/new/online/
+	scp -r -f -v ../pilas-engine-bloques/dist_web pilasbloques@www.daleaceptar.gob.ar:new/online
 	@echo ""
 	@echo ""
 	@echo " $(V)* Subiendo la ruta /online en:$(N) "
