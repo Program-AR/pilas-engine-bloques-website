@@ -50,7 +50,7 @@ deploy_online:
 	@echo ""
 
 apply_deploy:
-	ssh pilasbloques@www.daleaceptar.gob.ar 'mv pilasbloques/ "__backups/activo_hasta_$(date +%F-%T)"'
+	ssh pilasbloques@www.daleaceptar.gob.ar 'mv pilasbloques/ "__backups/activo_hasta_`date +%F-%T`"'
 	make apply_deploy_no_backup
 	
 apply_deploy_no_backup:
