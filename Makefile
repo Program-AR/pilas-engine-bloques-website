@@ -14,7 +14,7 @@ all:
 	@echo "   $(V)iniciar_subcarpeta_online$(N)  Instala dependencias deploy online."
 	@echo "   $(V)preview $(N)                   Muestra el sitio de forma local."
 	@echo ""
-	@echo " $(Y)Comandos para publicar en http://pilasbloques.programar.gob.ar:$(N) "
+	@echo " $(Y)Comandos para publicar en http://pilasbloques.program.ar:$(N) "
 	@echo ""
 	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web (directorio temporal)."
 	@echo "   $(V)deploy_online$(N)              Sube la ruta /online (directorio temporal)."
