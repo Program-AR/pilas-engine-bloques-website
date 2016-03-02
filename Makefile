@@ -70,6 +70,7 @@ iniciar:
 	bower install
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
 	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
+	ln -s ../pilas-engine-bloques
 
 iniciar_subcarpeta_online:
 	@echo "$(V)clonando pilas-engine-bloques para servir en /online ...$(N)"

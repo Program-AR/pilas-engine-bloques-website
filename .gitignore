@@ -3,10 +3,12 @@
 # compiled output
 /dist
 /tmp
+/dist_web
 
 # dependencies
 /node_modules
 /bower_components
+pilas-engine-bloques
 
 # misc
 /.sass-cache
