@@ -14,7 +14,7 @@ all:
 	@echo "   $(V)iniciar_subcarpeta_online$(N)  Instala dependencias deploy online."
 	@echo "   $(V)preview $(N)                   Muestra el sitio de forma local."
 	@echo ""
-	@echo " $(Y)Comandos para publicar en http://pilasbloques.programar.gob.ar:$(N) "
+	@echo " $(Y)Comandos para publicar en http://pilasbloques.program.ar:$(N) "
 	@echo ""
 	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web (directorio temporal)."
 	@echo "   $(V)deploy_online$(N)              Sube la ruta /online (directorio temporal)."
@@ -45,22 +45,22 @@ deploy_online:
 	@echo ""
 	@echo " $(V)* Subiendo la ruta /online en:$(N) "
 	@echo ""
-	@echo "                            http://pilasbloques.programar.gob.ar/online "
+	@echo "                            http://pilasbloques.program.ar/online "
 	@echo ""
 	@echo ""
 
 apply_deploy:
-	ssh pilasbloques@www.daleaceptar.gob.ar 'mv pilasbloques/ "__backups/activo_hasta_$(date +%F-%T)"'
+	ssh pilasbloques@www.daleaceptar.gob.ar 'mv web/ "__backups/activo_hasta_`date +%F-%T`"'
 	make apply_deploy_no_backup
 	
 apply_deploy_no_backup:
-	ssh pilasbloques@www.daleaceptar.gob.ar 'mv new pilasbloques'
+	ssh pilasbloques@www.daleaceptar.gob.ar 'mv new web'
 	@echo ""
 	@echo " $(V)* Publicando la aplicaci´øn en:$(N) "
 	@echo ""
 	@echo "                            http://bloques.pilas-engine.com.ar "
 	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
-	@echo "                            http://pilasbloques.programar.gob.ar "
+	@echo "                            http://pilasbloques.program.ar "
 	@echo ""
 	@echo ""
 
