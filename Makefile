@@ -71,6 +71,8 @@ iniciar:
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
 	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
 	ln -s ../pilas-engine-bloques
+	cd app/components/; ln -s ../../pilas-engine-bloques/app/components/pilas-acerca-de.js
+	cd app/templates/components/; ln -s ../../../pilas-engine-bloques/app/templates/components/pilas-acerca-de.hbs
 
 iniciar_subcarpeta_online:
 	@echo "$(V)clonando pilas-engine-bloques para servir en /online ...$(N)"

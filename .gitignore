@@ -17,3 +17,6 @@ pilas-engine-bloques
 /libpeerconnection.log
 npm-debug.log
 testem.log
+
+app/components/pilas-acerca-de.js
+app/templates/components/pilas-acerca-de.hbs
