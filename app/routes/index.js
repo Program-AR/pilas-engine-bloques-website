@@ -9,5 +9,16 @@ export default Ember.Route.extend({
       link_windows: "binarios/0.10.0/pilasBloques-0.10.0.exe",
       link_deb: "binarios/0.10.0/pilasBloques-0.10.0.deb",
     };
+  },
+
+  actions: {
+    registrarDescarga: function(so) {
+      ga('send', { // jshint ignore: line
+        hitType: 'event',
+        eventCategory: 'Downloads',
+        eventAction: 'Download ' + so,
+        eventLabel: 'Version ' + this.model().version,
+      });
+    }
   }
 });
