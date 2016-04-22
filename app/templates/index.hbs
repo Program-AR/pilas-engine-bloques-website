@@ -1,3 +1,23 @@
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-74706234-1', 'auto');
+  ga('send', 'pageview');
+
+  var registrarDescarga(so,version){
+    ga('send', {
+      hitType: 'event',
+      eventCategory: 'Downloads',
+      eventAction: 'Download ' + so,
+      eventLabel: 'Version ' + version,
+    });
+  }
+
+</script>
+
 <div class="jumbotron center">
 
   <h1>¡Vamos a programar!</h1>
@@ -8,20 +28,17 @@
   <a class='btn btn-primary btn-lg' href='online'>{{fa-icon "cloud"}} &nbsp; Online</a>
 
   <div class='descargas center'>
-    <p><span>{{fa-icon "download"}} &nbsp; Próximamente, podrás descargar la versión {{model.version}} para tu sistema operativo:</span></p>
+    <p><span>{{fa-icon "download"}} &nbsp; O bien, descargá la versión {{model.version}} para tu sistema operativo:</span></p>
 
     <ul id='descargas'>
       <li>
-        <a class='btn btn-success btn-lg disabled' style="display:inline-block; position:relative;" {{bind-attr href='model.link_deb'}}>{{fa-icon "linux"}} &nbsp; Huayra Linux</a>
-        <p>¡Próximamente!</p>
+        <a class='btn btn-success btn-lg' onclick='registrarDescarga("Huayra",{{model.version}})' style="display:inline-block; position:relative;" {{bind-attr href='model.link_deb'}}>{{fa-icon "linux"}} &nbsp; Huayra Linux</a>
       </li>
       <li>
-        <a class='btn btn-info btn-lg disabled' {{bind-attr href='model.link_windows'}}>{{fa-icon "windows"}} &nbsp; Windows</a>
-        <p>¡Próximamente!</p>
+        <a class='btn btn-info btn-lg' onclick='registrarDescarga("Windows",{{model.version}})' {{bind-attr href='model.link_windows'}}>{{fa-icon "windows"}} &nbsp; Windows</a>
       </li>
       <li>
-        <a class='btn btn-warning btn-lg disabled' {{bind-attr href='model.link_mac'}}>{{fa-icon "apple"}} &nbsp; Mac OS X</a>
-        <p>¡Próximamente!</p>
+        <a class='btn btn-warning btn-lg' onclick='registrarDescarga("Mac"),{{model.version}})' {{bind-attr href='model.link_mac'}}>{{fa-icon "apple"}} &nbsp; Mac OS X</a>
       </li>
     </ul>
 
@@ -66,7 +83,7 @@
   	<div class="col-sm-3">
   		<a href="http://www.mincyt.gob.ar/" target="_blank"><img width="360" height="100" src="imagenes/logos/logo-mincyt.png" class="attachment-full" alt="logo-minsyt"></a>
   	</div>
-    
+
     <div class="col-sm-3">
     </div>
   </div>
