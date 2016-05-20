@@ -33,6 +33,7 @@ deploy:
 	git push
 	ember build --environment development
 	scp -r dist/. pilasbloques@www.daleaceptar.gob.ar:new/
+	ssh pilasbloques@www.daleaceptar.gob.ar 'cp -R web/binarios/. new/binarios'
 	@echo ""
 	@echo ""
 
@@ -52,7 +53,7 @@ deploy_online:
 apply_deploy:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv web/ "__backups/activo_hasta_`date +%F-%T`"'
 	make apply_deploy_no_backup
-	
+
 apply_deploy_no_backup:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv new web'
 	@echo ""
