@@ -1,5 +1,9 @@
 import os
+import re
 import datetime
+
+
+MAKEFILE_PATH = "../pilas-engine-bloques/Makefile"
 
 
 def modification_date(filename):
@@ -12,15 +16,17 @@ origen = 'app/routes/index_template.js'
 destino = 'app/routes/index.js'
 
 # Obtiene el ultimo numero de version.
-listado = os.listdir(directorio)
-listado = [l for l in listado if len(l.split('.')) == 3]
-listado.sort(key=lambda s: map(int, s.split('.')))
-version = listado[-1]
+f = open(MAKEFILE_PATH, "rt")
+content = f.read()
+f.close()
+
+match = re.search('VERSION=(.*)', content)
+version = match.group(1)
 
 archivo_origen = open(origen, 'rt')
 archivo_destino = open(destino, 'wt')
 
-fecha = modification_date(directorio + '/' + version)
+fecha = modification_date(MAKEFILE_PATH)
 
 contenido = archivo_origen.read()
 contenido = contenido.replace('FECHA', fecha)
@@ -45,4 +51,4 @@ archivo_version_destino.close()
 
 
 
-print "Actualizando los links de descarga desde: " + directorio + '/' + version
+print "Actualizando los links de descarga desde el archivo Makefile:\n\t VERSION = " + version
