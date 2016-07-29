@@ -57,7 +57,7 @@ apply_deploy:
 apply_deploy_no_backup:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv new web'
 	@echo ""
-	@echo " $(V)* Publicando la aplicaci´øn en:$(N) "
+	@echo " $(V)* Publicando la aplicación en:$(N) "
 	@echo ""
 	@echo "                            http://bloques.pilas-engine.com.ar "
 	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
