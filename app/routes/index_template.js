@@ -5,9 +5,9 @@ export default Ember.Route.extend({
     return {
       version: "VERSION",
       fecha: "FECHA",
-      link_mac: "binarios/VERSION/pilasBloques-VERSION.dmg",
-      link_windows: "binarios/VERSION/pilasBloques-VERSION.exe",
-      link_deb: "binarios/VERSION/pilasBloques-VERSION.deb",
+      link_mac: "https://github.com/Program-AR/pilas-engine-bloques/releases/download/VERSION/pilas-bloques-VERSION.dmg",
+      link_windows: "https://github.com/Program-AR/pilas-engine-bloques/releases/download/VERSION/pilas-bloques-VERSION.exe",
+      link_deb: "https://github.com/Program-AR/pilas-engine-bloques/releases/download/VERSION/pilas-engine-bloques_VERSION-1_all.deb",
     };
   },
 
