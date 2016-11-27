@@ -18,6 +18,7 @@ ul#descargas{
   list-style: none;
   margin: 0;
   padding: 10px;
+  height: 80px;
 }
 
 ul#descargas li {
@@ -53,7 +54,11 @@ img {
   max-width: 100%;
 }
 
-.btn:hover {
+
+.descargas .btn {
+}
+
+.descargas .btn:hover {
   margin-top: 3px !important;
   border-bottom-width: 4px !important;
   opacity: 0.75 !important;
