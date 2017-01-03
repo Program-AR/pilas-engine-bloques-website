@@ -8,7 +8,7 @@
 # dependencies
 /node_modules
 /bower_components
-pilas-engine-bloques
+pilas-bloques
 
 # misc
 /.sass-cache

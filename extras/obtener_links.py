@@ -3,7 +3,7 @@ import re
 import datetime
 
 
-MAKEFILE_PATH = "../pilas-engine-bloques/Makefile"
+MAKEFILE_PATH = "../pilas-bloques/Makefile"
 
 
 def modification_date(filename):
@@ -11,16 +11,15 @@ def modification_date(filename):
     return str(datetime.datetime.fromtimestamp(t)).split(' ')[0]
 
 # Rutas iniciales.
-directorio = os.path.expanduser("~/Dropbox/Public/releases/pilas-engine-bloques")
 origen = 'app/routes/index_template.js'
 destino = 'app/routes/index.js'
 
 # Obtiene el ultimo numero de version.
-f = open(MAKEFILE_PATH, "rt")
-content = f.read()
-f.close()
+mkefile = open(MAKEFILE_PATH, "rt")
+mkefileContent = mkefile.read()
+mkefile.close()
 
-match = re.search('VERSION=(.*)', content)
+match = re.search('VERSION=(.*)', mkefileContent)
 version = match.group(1)
 
 archivo_origen = open(origen, 'rt')

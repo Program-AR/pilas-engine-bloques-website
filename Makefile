@@ -39,9 +39,9 @@ deploy:
 
 deploy_online:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
-	cd ../pilas-engine-bloques; git pull
-	cd ../pilas-engine-bloques/; make compilar_web
-	scp -r ../pilas-engine-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
+	cd ../pilas-bloques; git pull
+	cd ../pilas-bloques/; make compilar; make compilar_web
+	scp -r ../pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
 	@echo ""
 	@echo ""
 	@echo " $(V)* Subiendo la ruta /online en:$(N) "
@@ -60,7 +60,7 @@ apply_deploy_no_backup:
 	@echo " $(V)* Publicando la aplicación en:$(N) "
 	@echo ""
 	@echo "                            http://bloques.pilas-engine.com.ar "
-	@echo "                            http://program-ar.github.io/pilas-engine-bloques "
+	@echo "                            http://program-ar.github.io/pilas-bloques "
 	@echo "                            http://pilasbloques.program.ar "
 	@echo ""
 	@echo ""
@@ -70,14 +70,14 @@ iniciar:
 	npm install
 	bower install
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
-	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
-	ln -s ../pilas-engine-bloques
-	cd app/components/; ln -s ../../pilas-engine-bloques/app/components/pilas-acerca-de.js
-	cd app/templates/components/; ln -s ../../../pilas-engine-bloques/app/templates/components/pilas-acerca-de.hbs
+	cd ../; git clone http://github.com/program-ar/pilas-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
+	ln -s ../pilas-bloques
+	cd app/components/; ln -s ../../pilas-bloques/app/components/pilas-acerca-de.js
+	cd app/templates/components/; ln -s ../../../pilas-bloques/app/templates/components/pilas-acerca-de.hbs
 
 iniciar_subcarpeta_online:
-	@echo "$(V)clonando pilas-engine-bloques para servir en /online ...$(N)"
-	cd ../; git clone http://github.com/program-ar/pilas-engine-bloques.git pilas-engine-bloques; cd pilas-engine-bloques; make full;
+	@echo "$(V)clonando pilas-bloques para servir en /online ...$(N)"
+	cd ../; git clone http://github.com/program-ar/pilas-bloques.git pilas-bloques; cd pilas-bloques; make full;
 
 
 release:
