@@ -65,7 +65,7 @@ img {
 }
 
 
-.acercade {
+.acercade, .requisitos {
   margin-bottom: 15px;
   font-size: 18px;
   font-weight: 200;
@@ -73,11 +73,11 @@ img {
   margin: auto;
 }
 
-.acercade h1 {
+.acercade h1, .requisitos h1 {
   margin-bottom: 45px;
 }
 
-.acercade p {
+.acercade p , .requisitos p{
   margin: 0px 0px 15px;
 }
 
