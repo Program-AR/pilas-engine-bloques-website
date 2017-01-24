@@ -9,6 +9,7 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('demo', {path: "/demo/:actividad"});
   this.route('requisitos-minimos', {path: "/requisitosMinimos"});
+  this.route('notas-de-version', {path: "/notasDeVersion"});
 });
 
 export default Router;
