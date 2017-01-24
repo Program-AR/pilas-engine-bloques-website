@@ -8,7 +8,8 @@ all:
 	@echo ""
 	@echo " $(Y)Comandos para desarrolladores:$(N) "
 	@echo ""
-	@echo "   $(V)release $(N)                   Actualizando releases y descargas."
+	@echo "   $(V)release $(N)                   Actualiza, commitea y pushea versiones y"
+	@echo "                                      links de Pilas Bloques y el site. "
 	@echo ""
 	@echo "   $(V)iniciar $(N)                   Instala todas las dependencias."
 	@echo "   $(V)iniciar_subcarpeta_online$(N)  Instala dependencias deploy online."
@@ -21,20 +22,23 @@ all:
 	@echo "   $(V)apply_deploy$(N)               Aplica el deploy, poniendo a la aplicación en producción."
 	@echo "   $(V)apply_deploy_no_backup$(N)     Similar al anterior, pero sin hacer backup."
 	@echo ""
+	@echo " Ciclo de deploy ante nuevo release: (leer luego de cada paso)"
+	@echo "   release -> deploy -> deploy_online -> apply_deploy"
+	@echo ""
 
 preview:
 	ember serve
 
-deploy:
-	@echo "$(V)generando el deploy completo del sitio ...$(N)"
-	@echo "\n" >> README.md
-	@git add .
-	git commit -m "actualizacion..."
+registrar_comienzo_deploy:
+	@echo "`date +%F-%T` - Comienza Deploy" >> public/deploys.log
+	git add .
+	git commit -m "Comienza nuevo deploy"
 	git push
+
+deploy: registrar_comienzo_deploy
+	@echo "$(V)generando el deploy sólo del sitio ...$(N)"
 	ember build --environment development
 	scp -r dist/. pilasbloques@www.daleaceptar.gob.ar:new/
-	ssh pilasbloques@www.daleaceptar.gob.ar 'cp -R web/binarios/. new/binarios'
-	@echo ""
 	@echo ""
 
 deploy_online:
@@ -59,9 +63,9 @@ apply_deploy_no_backup:
 	@echo ""
 	@echo " $(V)* Publicando la aplicación en:$(N) "
 	@echo ""
+	@echo "                            http://pilasbloques.program.ar "
 	@echo "                            http://bloques.pilas-engine.com.ar "
 	@echo "                            http://program-ar.github.io/pilas-bloques "
-	@echo "                            http://pilasbloques.program.ar "
 	@echo ""
 	@echo ""
 
@@ -79,6 +83,6 @@ iniciar_subcarpeta_online:
 	@echo "$(V)clonando pilas-bloques para servir en /online ...$(N)"
 	cd ../; git clone http://github.com/program-ar/pilas-bloques.git pilas-bloques; cd pilas-bloques; make full;
 
-
 release:
 	@python extras/obtener_links.py
+	ember release
