@@ -85,4 +85,5 @@ iniciar_subcarpeta_online:
 
 release:
 	@python extras/obtener_links.py
+	git commit -am "Actualizando links de Pilas Bloques a nueva versión" 
 	ember release
