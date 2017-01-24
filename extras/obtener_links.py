@@ -1,53 +1,41 @@
 import os
-import re
+import subprocess
 import datetime
 
+#################################################
+###### Auxiliares      ##########################
+#################################################
 
-MAKEFILE_PATH = "../pilas-bloques/Makefile"
+def actualizar_index_js():
+    contenido = open('app/routes/index_template.js', 'rt').read()
+    contenido = contenido.replace('FECHA', fecha_pilas_bloques())
+    contenido = contenido.replace('VERSION', version_pilas_bloques())
+    escribir('app/routes/index.js', contenido)
 
+def actualizar_version_json():
+    contenido = open("public/version_template.json", 'rt').read()
+    contenido = contenido.replace('VERSION', version_pilas_bloques())
+    escribir("public/version.json", contenido)
+
+def version_pilas_bloques():
+    return subprocess.check_output('cd ../pilas-bloques; scripts/obtenerVersion.sh', shell=True).strip()
+
+def fecha_pilas_bloques():
+    return modification_date("../pilas-bloques/package.json")
 
 def modification_date(filename):
     t = os.path.getmtime(filename)
     return str(datetime.datetime.fromtimestamp(t)).split(' ')[0]
 
-# Rutas iniciales.
-origen = 'app/routes/index_template.js'
-destino = 'app/routes/index.js'
+def escribir(filename,content):
+    archivo = open(filename, 'wt')
+    archivo.write(content)
+    archivo.close()
 
-# Obtiene el ultimo numero de version.
-mkefile = open(MAKEFILE_PATH, "rt")
-mkefileContent = mkefile.read()
-mkefile.close()
+#################################################
+###### Main del script: #########################
+#################################################
+actualizar_index_js()
+actualizar_version_json()
 
-match = re.search('VERSION=(.*)', mkefileContent)
-version = match.group(1)
-
-archivo_origen = open(origen, 'rt')
-archivo_destino = open(destino, 'wt')
-
-fecha = modification_date(MAKEFILE_PATH)
-
-contenido = archivo_origen.read()
-contenido = contenido.replace('FECHA', fecha)
-contenido = contenido.replace('VERSION', version)
-
-archivo_destino.write(contenido)
-archivo_destino.close()
-
-
-origen_version = "public/version_template.json"
-destino_version = "public/version.json"
-
-archivo_version_origen = open(origen_version, 'rt')
-archivo_version_destino = open(destino_version, 'wt')
-
-contenido = archivo_version_origen.read()
-contenido = contenido.replace('VERSION', version)
-
-archivo_version_destino.write(contenido)
-archivo_version_destino.close()
-
-
-
-
-print "Actualizando los links de descarga desde el archivo Makefile:\n\t VERSION = " + version
+print "Actualizando los links de descarga de Pilas Bloques:\n\t VERSION = " + version_pilas_bloques()
