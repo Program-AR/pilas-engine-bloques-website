@@ -74,7 +74,6 @@ iniciar:
 	npm install
 	bower install
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
-	cd ../; git clone http://github.com/program-ar/pilas-bloques.git ghpages__pilas-engine-bloques-website; cd ghpages__pilas-engine-bloques-website; git checkout gh-pages;
 	ln -s ../pilas-bloques
 	cd app/components/; ln -s ../../pilas-bloques/app/components/pilas-acerca-de.js
 	cd app/templates/components/; ln -s ../../../pilas-bloques/app/templates/components/pilas-acerca-de.hbs
