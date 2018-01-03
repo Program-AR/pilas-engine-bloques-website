@@ -12,11 +12,6 @@ def actualizar_index_js():
     contenido = contenido.replace('VERSION', version_pilas_bloques())
     escribir('app/routes/index.js', contenido)
 
-def actualizar_version_json():
-    contenido = open("public/version_template.json", 'rt').read()
-    contenido = contenido.replace('VERSION', version_pilas_bloques())
-    escribir("public/version.json", contenido)
-
 def version_pilas_bloques():
     return subprocess.check_output('cd ../pilas-bloques; scripts/obtenerVersion.sh', shell=True).strip()
 
@@ -36,6 +31,5 @@ def escribir(filename,content):
 ###### Main del script: #########################
 #################################################
 actualizar_index_js()
-actualizar_version_json()
 
 print "Actualizando los links de descarga de Pilas Bloques:\n\t VERSION = " + version_pilas_bloques()
