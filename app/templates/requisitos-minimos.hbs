@@ -45,7 +45,17 @@ en el instalador, seleccionando "Más Información" y "Ejecutar de todas formas"
 <p>En {{#pilas-link href='http://huayra.conectarigualdad.gob.ar/'}}Huayra Linux{{/pilas-link}}
   no es necesario instalarlo, ya que la aplicación forma parte del conjunto de aplicaciones
   base con las que se distribuye el sistema operativo.</p>
-<p>Para otros Linux es necesario antes tener el paquete "electron" previamente instalado. Ese paquete puede obtenerse {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio de Github{{/pilas-link}}.</p>
+<p>Para otros Linux es necesario antes tener el paquete "electron" previamente instalado. Ese paquete puede obtenerse {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio de Github{{/pilas-link}}, con el nombre "electron_version_arquitectura.deb".</p>
 <p>Una vez instalado electron (ejecutando el instalador .deb) se puede proceder a ejecutar el instalador .deb de Pilas Bloques. Notar que ambas instalaciones requieren permisos de administrador.</p>
 
+<h3>Portable</h3>
+  <p>A partir de la versión 1.3.3, {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio{{/pilas-link}} se encontrará una versión portable de la aplicación (que no necesita instalación), en particular para Linux. Para correr Pilas Bloques:</p>
+  <ul>
+    <li>Descargar el ".zip" correspondiente a la arquitectura de tu Linux (x64: 64 bits, ia32: 32 bits).</li>
+    <li>Extraer el contenido del archivo comprimido.</li>
+    <li>Ejecutar el archivo "pilasBloques".</li>
+  </ul>
+  <p>Podría suceder que ni siquiera abra el archivo al hacer doble click. En ese caso se debe instalar la siguiente dependencia, ya sea escribiendo en la consola:  </p>
+  <blockquote> sudo apt-get install libgconf-2-4 </blockquote>
+  <p>o desde el gestor de paquetes de Linux buscar e instalar el paquete "libgconf-2-4".</p>
 </div>
