@@ -44,8 +44,8 @@ deploy: registrar_comienzo_deploy
 deploy_online:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
 	cd ../pilas-bloques; git pull
-	cd ../pilas-bloques/; make compilar_web
-	scp -r ../pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
+	cd ../pilas-bloques/; make compilar_prod
+	scp -r ../pilas-bloques/dist_prod/. pilasbloques@www.daleaceptar.gob.ar:new/online/
 	@echo ""
 	@echo ""
 	@echo " $(V)* Subiendo la ruta /online en:$(N) "

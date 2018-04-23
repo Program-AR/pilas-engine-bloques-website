@@ -5,7 +5,6 @@
 # compiled output
 /dist
 /tmp
-/dist_web
 
 # dependencies
 /node_modules
