@@ -11,7 +11,7 @@
 
 <div class="jumbotron center">
 
-  <h1>¡Vamos a programar!</h1>
+  <h1>¡Nueva versión BETA de Pilas Bloques!</h1>
 
   <p>Te presentamos una herramienta para aprender
   a programar realizando pequeños desafíos</p>
@@ -32,7 +32,7 @@
 
     <ul id='descargas'>
       <li>
-        <a class='btn btn-success btn-lg' {{action "registrarDescarga" "Huayra" preventDefault=false}} style="display:inline-block; position:relative;" href={{model.link_deb}}>{{fa-icon "linux"}} &nbsp; Huayra Linux</a>
+        <a class='btn btn-success btn-lg' {{action "registrarDescarga" "LinuxZipx64" preventDefault=false}} style="display:inline-block; position:relative;" href={{model.link_ziplinux}}>{{fa-icon "linux"}} &nbsp; Linux</a>
       </li>
       <li>
         <a class='btn btn-info btn-lg' {{action "registrarDescarga" "Windows" preventDefault=false}} href={{model.link_windows}}>{{fa-icon "windows"}} &nbsp; Windows</a>
@@ -45,7 +45,7 @@
   </div>
 
   <p><small><a href="https://github.com/Program-AR/pilas-bloques/releases">Más opciones de descarga {{fa-icon "download"}}</a></small></p>
-  <p><small>{{#link-to "requisitos-minimos"}}Instalación y requisitos mínimos {{fa-icon "check"}}{{/link-to}} -  {{#link-to "notas-de-version"}}Notas de versión {{fa-icon "code-fork"}}{{/link-to}}</small></p>
+  <p><small>{{#link-to "requisitos-minimos"}}Cómo instalar y requisitos mínimos {{fa-icon "check"}}{{/link-to}} -  {{#link-to "notas-de-version"}}Notas de versión {{fa-icon "code-fork"}}{{/link-to}}</small></p>
 
 </div>
 
