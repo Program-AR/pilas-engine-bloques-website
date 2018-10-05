@@ -19,7 +19,7 @@
 igual ó superior a Windows 7 SP1 (32 ó 64 bits).</p>
 
 <p>Para correrla en Windows XP, se recomienda la versión online de la aplicación.
-Por ahora, también puede descargarse una {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}versión antigua{{/pilas-link}} como por ejemplo la {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases/download/1.0.0/pilas-bloques-1.0.0.exe'}}versión 1.0.0{{/pilas-link}}.</p>
+Por ahora, también puede descargarse una {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}versión antigua{{/pilas-link}} como por ejemplo la {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases/download/1.0.0/pilas-bloques-1.0.0.exe'}}versión 1.0.0{{/pilas-link}} ó la {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases/download/1.1.2/pilas-bloques-1.1.2.exe'}}versión 1.1.2{{/pilas-link}}.</p>
 
 <h3>Instalación</h3>
 <p>Para instalar la aplicación, se puede hacer ejecutando el instalador .exe descargado.</p>
@@ -36,26 +36,30 @@ en el instalador, seleccionando "Más Información" y "Ejecutar de todas formas"
 <h2>Linux {{fa-icon "linux"}}</h2>
 <p>Las versiones de Linux sobre las que puede instalarse Pilas Bloques son las siguientes (ver {{#pilas-link href='https://github.com/electron/electron/blob/master/docs/tutorial/supported-platforms.md'}}aquí{{/pilas-link}}):</p>
 <ul>
-  <li>{{#pilas-link href='http://huayra.conectarigualdad.gob.ar/'}}Huayra{{/pilas-link}} 2 y posteriores (¡Ya viene preinstalado! <img src="imagenes/emoji-glasses.png"/>)</li>
+  <li>{{#pilas-link href='http://huayra.conectarigualdad.gob.ar/'}}Huayra{{/pilas-link}} 2 y posteriores</li>
   <li>Ubuntu 12.04 y posteriores</li>
   <li>Debian 8 y posteriores</li>
 </ul>
 
 <h3>Instalación</h3>
-<p>En {{#pilas-link href='http://huayra.conectarigualdad.gob.ar/'}}Huayra Linux{{/pilas-link}}
-  no es necesario instalarlo, ya que la aplicación forma parte del conjunto de aplicaciones
-  base con las que se distribuye el sistema operativo.</p>
-<p>Para otros Linux es necesario antes tener el paquete "electron" previamente instalado. Ese paquete puede obtenerse {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio de Github{{/pilas-link}}, con el nombre "electron_version_arquitectura.deb".</p>
-<p>Una vez instalado electron (ejecutando el instalador .deb) se puede proceder a ejecutar el instalador .deb de Pilas Bloques. Notar que ambas instalaciones requieren permisos de administrador.</p>
+<p>La versión actual de Pilas Bloques puede ejecutarse de dos formas:</p>
+<ol>
+  <li>Portable. No requiere permisos de administrador ni instalación. Por ahora recomendamos esta forma.</li>
+  <li><strong>Desinstalando versiones viejas</strong> e instalando con permisos de administrador el nuevo paquete .deb provisto {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}aquí{{/pilas-link}}. Es muy importante <strong>desinstalar la versión anterior</strong> antes de instalar la nueva, de lo contrario existirán dos Pilas Bloques en su sistema.</li>
+</ol>
+
+<p><strong>Nota:</strong> En la versiones anteriores a 1.3, era necesario tener el paquete "electron" previamente instalado. Ahora ya no es necesario. Ese paquete puede obtenerse {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio de Github{{/pilas-link}}, con el nombre "electron_version_arquitectura.deb".</p>
+
+<p>En {{#pilas-link href='http://huayra.conectarigualdad.gob.ar/'}}Huayra Linux{{/pilas-link}} se puede actualizar automáticamente hasta la versión 1.1.2, ya que la aplicación forma parte del conjunto de aplicaciones base con las que se distribuye el sistema operativo. Para versiones posteriores de Pilas Bloques hacer la instalación general en Linux.</p>
 
 <h3>Portable</h3>
-  <p>A partir de la versión 1.3.3, {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio{{/pilas-link}} se encontrará una versión portable de la aplicación (que no necesita instalación), en particular para Linux. Para correr Pilas Bloques:</p>
+  <p>A partir de la versión 1.3.3, {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio{{/pilas-link}} se encontrará una versión portable para linux (que no necesita instalación). Para correr Pilas Bloques:</p>
   <ul>
     <li>Descargar el ".zip" correspondiente a la arquitectura de tu Linux (x64: 64 bits, ia32: 32 bits).</li>
     <li>Extraer el contenido del archivo comprimido.</li>
-    <li>Ejecutar el archivo "pilasBloques".</li>
+    <li>Ejecutar el archivo "pilasbloques".</li>
   </ul>
-  <p>Podría suceder que ni siquiera abra el archivo al hacer doble click. En ese caso se debe instalar la siguiente dependencia, ya sea escribiendo en la consola:  </p>
+  <p>Podría suceder que no abra el archivo al hacer doble click. En ese caso se debe instalar la siguiente dependencia, ya sea escribiendo en la consola:  </p>
   <blockquote> sudo apt-get install libgconf-2-4 </blockquote>
   <p>o desde el gestor de paquetes de Linux buscar e instalar el paquete "libgconf-2-4".</p>
 </div>
