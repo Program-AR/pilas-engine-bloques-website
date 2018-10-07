@@ -6,19 +6,25 @@
   text-align: center;
 }
 
-.jumbotron {
-  margin-top: 30px;
+h2 {
+  color: #158cba;
 }
 
-.descargas {
-  margin-top: 30px;
+.jumbotron {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.online i, .online a {
+  display: block;
+  width: 300px;
 }
 
 ul#descargas{
   list-style: none;
   margin: 0;
   padding: 10px;
-  height: 80px;
 }
 
 ul#descargas li {
@@ -52,10 +58,7 @@ ul#descargas li {
 
 img {
   max-width: 100%;
-}
-
-
-.descargas .btn {
+  height: auto;
 }
 
 .descargas .btn:hover {
@@ -63,7 +66,6 @@ img {
   border-bottom-width: 4px !important;
   opacity: 0.75 !important;
 }
-
 
 .descripciones {
   margin-bottom: 15px;
@@ -81,7 +83,6 @@ img {
   margin: 0px 0px 15px;
 }
 
-
 .quienes-somos {
   padding-top: 100px;
   max-width: 800px;
@@ -91,12 +92,6 @@ img {
 .quienes-somos h1 {
   margin-bottom: 45px;
 }
-
-
-img {
-  height: auto;
-}
-
 
 img.logoProgramar {
   margin-bottom: 49px;

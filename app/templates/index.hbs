@@ -11,24 +11,39 @@
 
 <div class="jumbotron center">
 
-  <h1>¡Nueva versión BETA de Pilas Bloques!</h1>
+  <h2>¡Nueva versión BETA de Pilas Bloques!</h2>
 
   <p>Te presentamos una herramienta para aprender
   a programar realizando pequeños desafíos</p>
 
+</div>
+
+<div class="jumbotron center">
+  <h2><i class="fa fa-cloud" aria-hidden="true"></i> Online</h2>
+
   <div class="descargas center">
-    <ul id="descargas">
+    <ul id="descargas" class="online">
       <li>
-        <a class='btn btn-primary btn-lg' href='online/#/desafios'><i class="fa fa-cloud" aria-hidden="true"></i> &nbsp; Online</a>
+        <img src="imagenes/1erCiclo.png"/> 
+        <a class='btn btn-primary btn-lg' href='online/#/libros/1'>1er Ciclo</a>
+        <i>Desafíos del manual para docentes "Ciencias de la Computación para el aula, 1° ciclo de primaria"</i>
+      </li>
+      <li>
+        <img src="imagenes/2doCiclo.png"/>
+        <a class='btn btn-primary btn-lg' href='online/#/libros/2'>2do Ciclo</a>
+        <i>Desafíos del cuaderno para docentes "Actividades para aprender a Program.AR"  Para 2° ciclo de primaria en adelante.</i>
       </li>
     </ul>
   </div>
 
-  <p><small>Navegadores compatibles: Firefox y Chrome</small></p>
+  <p><small>Navegadores compatibles: {{fa-icon "firefox"}} Firefox y {{fa-icon "chrome"}} Chrome</small></p>
+</div>
 
+<div class="jumbotron center">
+  <h2>{{fa-icon "download"}} Descarga</h2>
 
   <div class='descargas center'>
-    <p><span>{{fa-icon "download"}} &nbsp; O bien, descargá la versión {{model.version}} para tu sistema operativo:</span></p>
+    <p><span>Descargá la versión {{model.version}} para tu sistema operativo:</span></p>
 
     <ul id='descargas'>
       <li>
