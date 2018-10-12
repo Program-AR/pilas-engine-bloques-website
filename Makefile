@@ -86,3 +86,7 @@ release:
 	@python extras/obtener_links.py
 	git commit -am "Actualizando links de Pilas Bloques a nueva versión" 
 	ember release
+
+
+# deploy only site:
+# pushear el site a new, copiarle adentro el online existente, backup de site viejo (puedo no hacerlo), hacer el swap 
