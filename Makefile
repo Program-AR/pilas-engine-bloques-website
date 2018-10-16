@@ -101,3 +101,6 @@ release:
 	@python extras/obtener_links.py
 	git commit -am "Actualizando links de Pilas Bloques a nueva versión" 
 	ember release
+
+deploy_test:
+	surge --domain sitepilasbloques.surge.sh
