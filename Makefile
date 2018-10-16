@@ -17,31 +17,42 @@ all:
 	@echo ""
 	@echo " $(Y)Comandos para publicar en http://pilasbloques.program.ar:$(N) "
 	@echo ""
-	@echo "   $(V)deploy  $(N)                   Sube el sitio completo a la web (directorio temporal)."
-	@echo "   $(V)deploy_online$(N)              Sube la ruta /online (directorio temporal)."
+	@echo "   $(V)deploy_site  $(N)                   Sube el sitio a la web (directorio temporal)."
+	@echo "   $(V)deploy_app$(N)                 Sube Pilas Bloques a la ruta /online (directorio temporal)."
 	@echo "   $(V)apply_deploy$(N)               Aplica el deploy, poniendo a la aplicación en producción."
 	@echo "   $(V)apply_deploy_no_backup$(N)     Similar al anterior, pero sin hacer backup."
+	@echo "   $(V)apply_deploy_only_site$(N)     Similar al anterior, sin actualizar la app Pilas Bloques, sólo el site"
 	@echo ""
-	@echo " Ciclo de deploy ante nuevo release: (leer luego de cada paso)"
-	@echo "   release -> deploy -> deploy_online -> apply_deploy"
+	@echo " Ciclo de deploy ante nuevo release de Pilas Bloques: (leer luego de cada paso)"
+	@echo "   make release -> deploy_site -> deploy_app -> apply_deploy"
+	@echo ""
+	@echo ""
+	@echo " Ciclo de deploy ante un update del site: (leer luego de cada paso)"
+	@echo "   ember release -> make deploy_site -> make apply_deploy_only_site"
 	@echo ""
 
 preview:
 	ember serve
 
-registrar_comienzo_deploy:
-	@echo "`date +%F-%T` - Comienza Deploy" >> public/deploys.log
+registrar_deploy_site:
+	@echo "`date +%F-%T` - Comienza Deploy del sitio" >> public/deploys.log
 	git add .
-	git commit -m "Comienza nuevo deploy"
+	git commit -m "Comienza nuevo deploy del sitio"
 	git push
 
-deploy: registrar_comienzo_deploy
+registrar_deploy_app:
+	@echo "`date +%F-%T` - Comienza Deploy de la app Pilas Bloques" >> public/deploys.log
+	git add .
+	git commit -m "Comienza nuevo deploy de la app Pilas Bloques"
+	git push
+
+deploy_site: registrar_deploy_site
 	@echo "$(V)generando el deploy sólo del sitio ...$(N)"
 	ember build --environment development
 	scp -r dist/. pilasbloques@www.daleaceptar.gob.ar:new/
 	@echo ""
 
-deploy_online:
+deploy_app:
 	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
 	cd ../pilas-bloques; git pull
 	cd ../pilas-bloques/; make compilar_web
@@ -53,6 +64,10 @@ deploy_online:
 	@echo "                            http://pilasbloques.program.ar/online "
 	@echo ""
 	@echo ""
+
+apply_deploy_only_site:
+	ssh pilasbloques@www.daleaceptar.gob.ar 'mv web/online new/online'
+	make apply_deploy_no_backup
 
 apply_deploy:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv web/ "__backups/activo_hasta_`date +%F-%T`"'
@@ -86,7 +101,3 @@ release:
 	@python extras/obtener_links.py
 	git commit -am "Actualizando links de Pilas Bloques a nueva versión" 
 	ember release
-
-
-# deploy only site:
-# pushear el site a new, copiarle adentro el online existente, backup de site viejo (puedo no hacerlo), hacer el swap 
