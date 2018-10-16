@@ -67,7 +67,7 @@ deploy_app:
 
 apply_deploy_only_site:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv web/online new/online'
-	make apply_deploy_no_backup
+	make apply_deploy
 
 apply_deploy:
 	ssh pilasbloques@www.daleaceptar.gob.ar 'mv web/ "__backups/activo_hasta_`date +%F-%T`"'
