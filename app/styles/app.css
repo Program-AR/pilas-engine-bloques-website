@@ -67,6 +67,10 @@ img {
   opacity: 0.75 !important;
 }
 
+.descargas img {
+  width: 300px;
+}
+
 .descripciones {
   margin-bottom: 15px;
   font-size: 18px;
