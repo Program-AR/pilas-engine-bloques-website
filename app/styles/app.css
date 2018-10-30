@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,400i,700');
+
 #top {
   margin-top: 60px;
 }
@@ -31,6 +33,10 @@ ul#descargas li {
   display: inline-block;
   margin-left: 5px;
   margin-right: 5px;
+}
+
+.descripcionLibros {
+  height: 65px;
 }
 
 .footer {
