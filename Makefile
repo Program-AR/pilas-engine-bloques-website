@@ -103,4 +103,5 @@ release:
 	ember release
 
 deploy_test:
-	surge --domain sitepilasbloques.surge.sh
+	ember build
+	surge --domain sitepilasbloques.surge.sh --project ./dist/
