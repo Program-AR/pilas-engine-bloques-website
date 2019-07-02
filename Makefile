@@ -32,7 +32,7 @@ all:
 	@echo ""
 
 preview:
-	ember serve
+	./node_modules/ember-cli/bin/ember serve
 
 registrar_deploy_site:
 	@echo "`date +%F-%T` - Comienza Deploy del sitio" >> public/deploys.log
