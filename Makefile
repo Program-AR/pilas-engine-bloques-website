@@ -1,6 +1,7 @@
 N=[0m
 V=[01;32m
 Y=[01;33m
+EMBER=./node_modules/ember-cli/bin/ember
 
 
 all:
@@ -32,7 +33,7 @@ all:
 	@echo ""
 
 preview:
-	./node_modules/ember-cli/bin/ember serve
+	$(EMBER) serve
 
 registrar_deploy_site:
 	@echo "`date +%F-%T` - Comienza Deploy del sitio" >> public/deploys.log
@@ -48,7 +49,7 @@ registrar_deploy_app:
 
 deploy_site: registrar_deploy_site
 	@echo "$(V)generando el deploy sólo del sitio ...$(N)"
-	ember build --environment development
+	$(EMBER) build --environment development
 	scp -r dist/. pilasbloques@www.daleaceptar.gob.ar:new/
 	@echo ""
 
@@ -100,8 +101,8 @@ iniciar_subcarpeta_online:
 release:
 	@python extras/obtener_links.py
 	git commit -am "Actualizando links de Pilas Bloques a nueva versión" 
-	ember release
+	$(EMBER) release
 
 deploy_test:
-	ember build
+	$(EMBER) build
 	surge --domain sitepilasbloques.surge.sh --project ./dist/
