@@ -54,16 +54,12 @@ deploy_site: registrar_deploy_site
 	@echo ""
 
 deploy_app:
-	@echo "$(V)iniciando deploy de la ruta /online ...$(N)"
+	@echo "$(V)iniciando deploy de la app hacia new/online ...$(N)"
 	cd ../pilas-bloques; git pull
-	cd ../pilas-bloques/; make compilar_web
+	cd ../pilas-bloques/; make limpiar_todo iniciar compilar_web
 	scp -r ../pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
 	@echo ""
-	@echo ""
-	@echo " $(V)* Subiendo la ruta /online en:$(N) "
-	@echo ""
-	@echo "                            http://pilasbloques.program.ar/online "
-	@echo ""
+	@echo " $(V)Deploy OK$(N) "
 	@echo ""
 
 apply_deploy_only_site:
