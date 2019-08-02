@@ -3,19 +3,33 @@ language: node_js
 node_js:
   - "10"
 
+env:
+  - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+addons:
+  firefox: latest
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.9
+    - gcc-4.9
+
+os:
+  - linux
+  - osx
+
 sudo: false
-dist: trusty
 
 services:
   - xvfb
 
-addons:
-  chrome: stable
-
 cache:
   directories:
-    - $HOME/.npm
-    - $HOME/.cache
+  - node_modules
+  - bower_components
+  - $HOME/.npm
+  - $HOME/.cache # includes bowers cache
+  - cache
 
 before_install:
   - npm config set spin false
@@ -29,11 +43,6 @@ install:
 before_script:
   - export DISPLAY=:99.0
 
-env:
-  global:
-    # See https://git.io/vdao3 for details.
-    - JOBS=1
-    
 addons:
   firefox: latest
 
