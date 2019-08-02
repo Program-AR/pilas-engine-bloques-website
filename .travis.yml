@@ -6,6 +6,9 @@ node_js:
 sudo: false
 dist: trusty
 
+services:
+  - xvfb
+
 addons:
   chrome: stable
 
@@ -23,9 +26,8 @@ install:
   - npm install
   - bower install
 
-after_install:
+before_script:
   - export DISPLAY=:99.0
-
 
 env:
   global:
