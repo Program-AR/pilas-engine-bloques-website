@@ -12,13 +12,20 @@ addons:
 cache:
   directories:
     - $HOME/.npm
+    - $HOME/.cache
+
+before_install:
+  - npm config set spin false
+  - npm install -g bower
+  - bower --version
 
 env:
   global:
     # See https://git.io/vdao3 for details.
     - JOBS=1
+    
+addons:
+  firefox: latest
 
 script:
-  - npm run lint:hbs
-  - npm run lint:js
   - npm test
