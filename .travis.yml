@@ -1,25 +1,50 @@
 ---
 language: node_js
 node_js:
-  - "4"
+  - "10"
+
+env:
+  - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+addons:
+  firefox: latest
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.9
+    - gcc-4.9
+
+os:
+  - linux
+  - osx
 
 sudo: false
 
+services:
+  - xvfb
+
 cache:
   directories:
-    - $HOME/.npm
-    - $HOME/.cache # includes bowers cache
+  - node_modules
+  - bower_components
+  - $HOME/.npm
+  - $HOME/.cache # includes bowers cache
+  - cache
 
 before_install:
   - npm config set spin false
   - npm install -g bower
   - bower --version
-  - npm install -g phantomjs-prebuilt
-  - phantomjs --version
 
 install:
   - npm install
   - bower install
+
+before_script:
+  - export DISPLAY=:99.0
+
+addons:
+  firefox: latest
 
 script:
   - npm test
