@@ -84,7 +84,7 @@ apply_deploy_no_backup:
 iniciar:
 	@echo "$(V)instalando dependencias ...$(N)"
 	npm install
-	bower install
+	./node_modules/ember-cli/bin/bower install
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
 	ln -s ../pilas-bloques
 	cd app/components/; ln -s ../../pilas-bloques/app/components/pilas-acerca-de.js
