@@ -1,6 +1,6 @@
 {
   "name": "pilas-engine-bloques-website",
-  "license": "AGPL-3.0",
+  "license": "GPL-3.0",
   "dependencies": {
     "font-awesome": "~4.7.0"
   }
