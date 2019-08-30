@@ -4,7 +4,7 @@
   "private": true,
   "description": "Small description for pilas-engine-bloques-website goes here",
   "repository": "",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "author": "",
   "directories": {
     "doc": "doc",
