@@ -4,7 +4,7 @@
   "private": true,
   "description": "Small description for pilas-engine-bloques-website goes here",
   "repository": "",
-  "license": "AGPL-3.0",
+  "license": "GPL-3.0",
   "author": "",
   "directories": {
     "doc": "doc",
