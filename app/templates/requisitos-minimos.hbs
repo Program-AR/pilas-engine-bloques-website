@@ -51,15 +51,38 @@ en el instalador, seleccionando "Más Información" y "Ejecutar de todas formas"
 <p><strong>Nota:</strong> En la versiones anteriores a 1.3, era necesario tener el paquete "electron" previamente instalado. Ahora ya no es necesario. Ese paquete puede obtenerse {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio de Github{{/pilas-link}}, con el nombre "electron_version_arquitectura.deb".</p>
 
 <p>En {{#pilas-link href='http://huayra.conectarigualdad.gob.ar/'}}Huayra Linux{{/pilas-link}} se puede actualizar automáticamente hasta la versión 1.1.2, ya que la aplicación forma parte del conjunto de aplicaciones base con las que se distribuye el sistema operativo. Para versiones posteriores de Pilas Bloques hacer la instalación general en Linux.</p>
-
 <h3>Portable</h3>
-  <p>A partir de la versión 1.3.3, {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro repositorio{{/pilas-link}} se encontrará una versión portable para linux (que no necesita instalación). Para correr Pilas Bloques:</p>
-  <ul>
-    <li>Descargar el ".zip" correspondiente a la arquitectura de tu Linux (x64: 64 bits, ia32: 32 bits).</li>
-    <li>Extraer el contenido del archivo comprimido.</li>
-    <li>Ejecutar el archivo "pilasbloques".</li>
-  </ul>
-  <p>Podría suceder que no abra el archivo al hacer doble click. En ese caso se debe instalar la siguiente dependencia, ya sea escribiendo en la consola:  </p>
-  <blockquote> sudo apt-get install libgconf-2-4 </blockquote>
-  <p>o desde el gestor de paquetes de Linux buscar e instalar el paquete "libgconf-2-4".</p>
+<p>A partir de la versión 1.3.3, {{#pilas-link href='https://github.com/Program-AR/pilas-bloques/releases'}}en nuestro
+  repositorio{{/pilas-link}} se encontrará una versión portable para linux (que no necesita instalación). Para correr
+  Pilas Bloques:</p>
+<ul>
+  <li>Descargar el ".zip" correspondiente a la arquitectura de tu Linux (x64: 64 bits, ia32: 32 bits).</li>
+  <li>Extraer el contenido del archivo comprimido.</li>
+  <li>Ejecutar el archivo "pilasbloques".</li>
+</ul>
+<p>Podría suceder que no abra el archivo al hacer doble click. En ese caso: </p>
+
+<ol>
+  <li>
+    <p>Asegurarse de tener la libreria libgconf instalada, o proceder escribiendo por consola:</p>
+    <code> sudo apt-get install libgconf-2-4</code>
+    <p>o desde el gestor de paquetes de Linux buscar e instalar el paquete "libgconf-2-4".</p>
+  </li>
+  <li>
+    <p>Asegurarse de tener el sistema operativos actualizado, o proceder escribiendo por consola:</p>
+    <code> sudo apt-get upgrade</code>
+  </li>
+  <li>
+    <p>Pararse en la carpeta de pilas bloques previamente extraida mediante consola con el comando <b>cd</b>, por ejemplo:</p>
+    <code>
+      cd /home/alumno/descargas/pilasbloques
+    </code>
+    <p>y luego:</p>
+    <code>
+      sudo chown root chrome-sandbox
+      sudo chmod 4755 chrome-sandbox
+    </code>
+  </li>
+</ol>
+<p>Listo, pilas bloques ahora debería funcionar correctamente.</p>
 </div>

@@ -102,3 +102,7 @@ img {
 .quienes-somos h1 {
   margin-bottom: 45px;
 }
+
+code { 
+  font-family: monospace;
+}
