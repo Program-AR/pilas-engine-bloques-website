@@ -22,5 +22,5 @@ pilas-bloques
 npm-debug.log
 testem.log
 
-app/components/pilas-acerca-de.js
-app/templates/components/pilas-acerca-de.hbs
+app/components/descripcion-acerca-de.js
+app/templates/components/descripcion-acerca-de.hbs

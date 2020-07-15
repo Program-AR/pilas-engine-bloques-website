@@ -1,7 +1,7 @@
 N=[0m
 V=[01;32m
 Y=[01;33m
-EMBER=./node_modules/ember-cli/bin/ember
+EMBER=./node_modules/.bin/ember
 
 
 all:
@@ -84,11 +84,11 @@ apply_deploy_no_backup:
 iniciar:
 	@echo "$(V)instalando dependencias ...$(N)"
 	npm install
-	./node_modules/ember-cli/bin/bower install
+	./node_modules/.bin/bower install
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
 	ln -s ../pilas-bloques
-	cd app/components/; ln -s ../../pilas-bloques/app/components/pilas-acerca-de.js
-	cd app/templates/components/; ln -s ../../../pilas-bloques/app/templates/components/pilas-acerca-de.hbs
+	cd app/components/; ln -s ../../pilas-bloques/app/components/descripcion-acerca-de.js
+	cd app/templates/components/; ln -s ../../../pilas-bloques/app/templates/components/descripcion-acerca-de.hbs
 
 iniciar_subcarpeta_online:
 	@echo "$(V)clonando pilas-bloques para servir en /online ...$(N)"
