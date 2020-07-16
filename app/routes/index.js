@@ -3,12 +3,12 @@ import Route from '@ember/routing/route';
 export default Route.extend({
   model: function() {
     return {
-      version: "1.5.2",
-      fecha: "2019-10-04",
-      link_mac: "https://github.com/Program-AR/pilas-bloques/releases/download/1.5.2/pilasbloques-1.5.2.dmg",
-      link_windows: "https://github.com/Program-AR/pilas-bloques/releases/download/1.5.2/pilasbloques-1.5.2.exe",
-      link_ziplinux: "https://github.com/Program-AR/pilas-bloques/releases/download/1.5.2/pilasbloques-1.5.2-linux-x64.zip",
-      link_deb: "https://github.com/Program-AR/pilas-bloques/releases/download/1.5.2/pilasbloques_1.5.2_amd64.deb"
+      version: "1.6.0",
+      fecha: "2020-07-16",
+      link_mac: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques-1.6.0.dmg",
+      link_windows: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques-1.6.0.exe",
+      link_ziplinux: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques-1.6.0-linux-x64.zip",
+      link_deb: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques_1.6.0_amd64.deb"
     };
   },
 
