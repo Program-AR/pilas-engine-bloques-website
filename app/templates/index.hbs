@@ -50,7 +50,10 @@
 
     <ul id='descargas'>
       <li>
-        <a class='btn btn-success btn-lg' {{action "registrarDescarga" "LinuxZipx64" preventDefault=false}} style="display:inline-block; position:relative;" href={{model.link_ziplinux}}>{{fa-icon "linux"}} &nbsp; Linux</a>
+        <a class='btn btn-success btn-lg' {{action "registrarDescarga" "LinuxDebx64" preventDefault=false}} style="display:inline-block; position:relative;" href={{model.link_deb}}>{{fa-icon "linux"}} &nbsp; Debian/Ubuntu</a>
+      </li>
+      <li>
+        <a class='btn btn-success btn-lg' {{action "registrarDescarga" "LinuxZipx64" preventDefault=false}} style="display:inline-block; position:relative;" href={{model.link_ziplinux}}>{{fa-icon "linux"}} &nbsp; Linux Portable</a>
       </li>
       <li>
         <a class='btn btn-info btn-lg' {{action "registrarDescarga" "Windows" preventDefault=false}} href={{model.link_windows}}>{{fa-icon "windows"}} &nbsp; Windows</a>

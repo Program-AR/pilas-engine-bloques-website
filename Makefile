@@ -56,7 +56,7 @@ deploy_site: registrar_deploy_site
 deploy_app:
 	@echo "$(V)iniciando deploy de la app hacia new/online ...$(N)"
 	cd ../pilas-bloques; git pull
-	cd ../pilas-bloques/; make limpiar_todo iniciar compilar_web
+	cd ../pilas-bloques/; npm run clean && npm install && npm run build:web
 	scp -r ../pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
 	@echo ""
 	@echo " $(V)Deploy OK$(N) "
@@ -92,7 +92,7 @@ iniciar:
 
 iniciar_subcarpeta_online:
 	@echo "$(V)clonando pilas-bloques para servir en /online ...$(N)"
-	cd ../; git clone http://github.com/program-ar/pilas-bloques.git pilas-bloques; cd pilas-bloques; make full;
+	cd ../; git clone http://github.com/program-ar/pilas-bloques.git pilas-bloques; cd pilas-bloques; npm install && npm run build:web;
 
 release:
 	@python extras/obtener_links.py
