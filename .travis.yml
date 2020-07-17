@@ -48,3 +48,14 @@ addons:
 
 script:
   - npm test
+
+before_deploy: 
+  - ./node_modules/.bin/ember build --environment development
+deploy:
+  provider: surge # Whenever master gets updated, update surge site.
+  project: ./dist/
+  domain: sitepilasbloques.surge.sh
+  skip_cleanup: true
+  on:
+    branch: master
+    condition: "$TRAVIS_OS_NAME == linux"
