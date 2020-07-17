@@ -89,6 +89,14 @@ img {
   margin-bottom: 45px;
 }
 
+.descripciones li {
+  margin-top: 1em;
+}
+
+.descripciones br {
+  margin-bottom: 1em;
+}
+
 .descripciones p{
   margin: 0px 0px 15px;
 }
