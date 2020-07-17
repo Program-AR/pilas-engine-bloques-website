@@ -50,6 +50,8 @@ script:
   - npm test
 
 before_deploy: 
+  - wget -O app/components/descripcion-acerca-de.js https://raw.githubusercontent.com/Program-AR/pilas-bloques/master/app/components/descripcion-acerca-de.js
+  - wget -O app/templates/components/descripcion-acerca-de.hbs https://raw.githubusercontent.com/Program-AR/pilas-bloques/master/app/templates/components/descripcion-acerca-de.hbs
   - ./node_modules/.bin/ember build --environment development
 deploy:
   provider: surge # Whenever master gets updated, update surge site.
