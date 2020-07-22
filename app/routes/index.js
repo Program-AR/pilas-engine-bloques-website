@@ -4,7 +4,7 @@ export default Route.extend({
   model: function() {
     return {
       version: "1.6.0",
-      fecha: "2020-07-16",
+      fecha: "2020-07-22",
       link_mac: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques-1.6.0.dmg",
       link_windows: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques-1.6.0.exe",
       link_ziplinux: "https://github.com/Program-AR/pilas-bloques/releases/download/1.6.0/pilasbloques-1.6.0-linux-x64.zip",
