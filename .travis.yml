@@ -26,19 +26,14 @@ services:
 cache:
   directories:
   - node_modules
-  - bower_components
   - $HOME/.npm
-  - $HOME/.cache # includes bowers cache
   - cache
 
 before_install:
   - npm config set spin false
-  - npm install -g bower
-  - bower --version
 
 install:
   - npm install
-  - bower install
 
 before_script:
   - export DISPLAY=:99.0
