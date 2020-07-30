@@ -84,7 +84,6 @@ apply_deploy_no_backup:
 iniciar:
 	@echo "$(V)instalando dependencias ...$(N)"
 	npm install
-	./node_modules/.bin/bower install
 	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
 	ln -s ../pilas-bloques
 	cd app/components/; ln -s ../../pilas-bloques/app/components/descripcion-acerca-de.js
