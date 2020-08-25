@@ -36,6 +36,7 @@ jobs:
     before_deploy:
       - npm run package:site
     deploy:
+      skip_cleanup: true
       provider: releases # When there is a tag, pack site and pilas bloques and upload tar.gz.
       token:
         secure: "tOu+R2nPvDxyvp4u/LGsiXgeU684KR9J2fZEHHKLvRNPqFdxdpiNltfchXEhPFXTqYpdJ8HGqB2QOxMgyLHcDwior4esB65tygGQTO/knf//+BTERzpTPby7yPyppOyzmWY8Kwd5Eo0VRJzAVEiQM9QhbRMQ6YbOuRcb7obF9tc7A/SMuVuzNz0r8XmsHYUJru3pW0RViwCBtJRwqPYnpm2eE7zke5U+Pc59X+7Cx5Kk0E883Gmw+PPTdFcZ3sevGIBM9wUlar9v9PgzyaRRShj5m/9OKfcPgsrDOFRNd46qInmxUBp/0qVHOyCDqx/euxp9EtmPHTD4lafR4fRuVKpiTPPcvXKkJmSlpt220XEw4AtP2F4jVZMmIBSD6MjCGQwsUc82Wy7YGd4d8RFo+FZCidXvvZhkCIeGHg5/q3uXcynHEGXscu0mB84BgZr9onBsW6wcyX1atKDC+POdfWt7m0QQeTJfMheJk6FblmUi/RzL/KFoiq8IUu6ckm3i+A9SQZi4oGPK4LySRmtthz1eZ7qIHGvusBnFxyWFwLuMH/byqiw9p5E1hPBi5uuHEa5QtG4TZK5RUI54AijDQIA66YoepA4SXk8Bf+KUQqVwwjGwnTMkNyl1AIRwQJhBuwuyXS0mWx/uRqSUlAHvrsXBFZ2NhXP6Zyyvi5sPpKM="
