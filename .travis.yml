@@ -52,6 +52,7 @@ jobs:
           condition: "$TRAVIS_OS_NAME == linux"
 
     - stage: "Package site"
+      if: tag IS present
       os: linux
       before_deploy:
         - npm run package:site
