@@ -3,9 +3,6 @@ language: node_js
 node_js:
   - "10"
 
-os:
-  - linux
-  - osx
 sudo: false
 
 cache:
@@ -23,6 +20,7 @@ install:
 jobs:
   include:
     - stage: "Tests and surge"
+      os: [linux, osx]
       addons:
         firefox: latest
         apt:
