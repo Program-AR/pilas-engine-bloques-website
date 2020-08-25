@@ -14,14 +14,7 @@ addons:
     - g++-4.9
     - gcc-4.9
 
-os:
-  - linux
-  - osx
-
 sudo: false
-
-services:
-  - xvfb
 
 cache:
   directories:
@@ -35,24 +28,40 @@ before_install:
 install:
   - npm install
 
-before_script:
-  - export DISPLAY=:99.0
+jobs:
+  include:
+    - stage: "Tests and surge"
+      os:
+        - linux
+        - osx
+      services:
+        - xvfb
+      before_script:
+        - export DISPLAY=:99.0
+      script:
+        - npm test
+      before_deploy:
+        - npm run build
+      deploy:
+        provider: surge # Whenever master gets updated, update surge site.
+        project: ./dist/
+        domain: sitepilasbloques.surge.sh
+        skip_cleanup: true
+        on:
+          branch: master
+          condition: "$TRAVIS_OS_NAME == linux"
 
-addons:
-  firefox: latest
-
-script:
-  - npm test
-
-before_deploy: 
-  - wget -O app/components/descripcion-acerca-de.js https://raw.githubusercontent.com/Program-AR/pilas-bloques/master/app/components/descripcion-acerca-de.js
-  - wget -O app/templates/components/descripcion-acerca-de.hbs https://raw.githubusercontent.com/Program-AR/pilas-bloques/master/app/templates/components/descripcion-acerca-de.hbs
-  - ./node_modules/.bin/ember build --environment development
-deploy:
-  provider: surge # Whenever master gets updated, update surge site.
-  project: ./dist/
-  domain: sitepilasbloques.surge.sh
-  skip_cleanup: true
-  on:
-    branch: master
-    condition: "$TRAVIS_OS_NAME == linux"
+    - stage: "Package site"
+      os: linux
+      before_deploy:
+        - npm run package:site
+      deploy:
+        provider: releases # When there is a tag, pack site and pilas bloques and upload tar.gz.
+        skip_cleanup: true
+        api_key:
+          secure: SUY6RLPjT+n3IlNWvPh8p0CwQqjbRyIVyFI3fTHURgKt5OtWHF+lb1v1cHmsLOhhScwQ3QwNh03VaKwLTZgppE7napykXWGW4dMtnWajj6ZUmL3Wt4azLT2LS/Pl/a3A+K35AeachESdeRZ0EIvZLntWNXB3Uvr1LIk6L6LXIzp6gVDA88GHQ8kYsuD+0HHjq6BHDCcNkjKPZVmF0qhYgQe+p/UdfO0mBRSD/AowMwM0lBoPAQJ0OxZcrGjcDrC3h7Lo4c260JcpwDd6kO6n5/iSyEVhvuEDvVXh9b9Anov27YcFLlcDg6PUBcLPKdnzQZnbhplvQchP0G8621lOJhtgZosvkHynzZ3dbAi6S89yMpNes1Sa9RgjADLp4uzYhIhslYUvJ0s37Z+misrPVqJ52qhF4BkHI9pKRGiF0rHqNbOdY6KMHEaXgl9iOJgkI529Imh7iKkxXzI20phJEnZhK7i/XAdokSHhJi7CsVwCgtInS5eN7CqYwKtQoMVyuKUAHRO8kCJOnxCX7MYVHXqOKZKui/fvLFFHgafYwoFhSZo2Rj3hBIXAyvBkLvbShm13+yIZaoQRfTvUjZRkYEK9+22JEFVPiqi3QLy6ephVo68mTW0eyJiUGl9EOdF2dL2emFRDushqq7VtBbAa2c04WKgQyfDiP5v7unj/kZ8=
+        file:
+        - sitepilasbloques.tar.gz
+        on:
+          tags: true
+          all_branches: true

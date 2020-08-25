@@ -1,8 +1,6 @@
 N=[0m
 V=[01;32m
 Y=[01;33m
-EMBER=./node_modules/.bin/ember
-
 
 all:
 	@echo "Comandos disponibles:"
@@ -12,9 +10,6 @@ all:
 	@echo "   $(V)release $(N)                   Actualiza, commitea y pushea versiones y"
 	@echo "                                      links de Pilas Bloques y el site. "
 	@echo ""
-	@echo "   $(V)iniciar $(N)                   Instala todas las dependencias."
-	@echo "   $(V)iniciar_subcarpeta_online$(N)  Instala dependencias deploy online."
-	@echo "   $(V)preview $(N)                   Muestra el sitio de forma local."
 	@echo ""
 	@echo " $(Y)Comandos para publicar en http://pilasbloques.program.ar:$(N) "
 	@echo ""
@@ -25,18 +20,13 @@ all:
 	@echo "   $(V)apply_deploy_only_site$(N)     Similar al anterior, sin actualizar la app Pilas Bloques, sólo el site"
 	@echo ""
 	@echo ""
-	@echo "" Hacer iniciar siempre antes de este paso si no lo hiciste antes.
-	@echo ""
 	@echo " Ciclo de deploy ante nuevo release de Pilas Bloques: (leer luego de cada paso)"
-	@echo "   make release -> deploy_site -> deploy_app -> apply_deploy"
+	@echo "   npm run pb:updatedownloadlinks -> npm run release -> deploy_site -> deploy_app -> apply_deploy"
 	@echo ""
 	@echo ""
 	@echo " Ciclo de deploy ante un update del site: (leer luego de cada paso)"
-	@echo "   ember release -> make deploy_site -> make apply_deploy_only_site"
+	@echo "   npm run release -> make deploy_site -> make apply_deploy_only_site"
 	@echo ""
-
-preview:
-	$(EMBER) serve
 
 registrar_deploy_site:
 	@echo "`date +%F-%T` - Comienza Deploy del sitio" >> public/deploys.log
@@ -51,16 +41,15 @@ registrar_deploy_app:
 	git push
 
 deploy_site: registrar_deploy_site
+	npm run build
 	@echo "$(V)generando el deploy sólo del sitio ...$(N)"
-	$(EMBER) build --environment development
 	scp -r dist/. pilasbloques@www.daleaceptar.gob.ar:new/
 	@echo ""
 
-deploy_app:
+deploy_app: registrar_deploy_app
+	npm run pb:build
 	@echo "$(V)iniciando deploy de la app hacia new/online ...$(N)"
-	cd ../pilas-bloques; git pull
-	cd ../pilas-bloques/; npm run clean && npm install && npm run build:web
-	scp -r ../pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
+	scp -r pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
 	@echo ""
 	@echo " $(V)Deploy OK$(N) "
 	@echo ""
@@ -83,24 +72,3 @@ apply_deploy_no_backup:
 	@echo "                            http://program-ar.github.io/pilas-bloques "
 	@echo ""
 	@echo ""
-
-iniciar:
-	@echo "$(V)instalando dependencias ...$(N)"
-	npm install
-	@echo "$(V)clonando el repositorio y el branch hg-pages (que sirve el sitio estático) ...$(N)"
-	ln -s ../pilas-bloques
-	cd app/components/; ln -s ../../pilas-bloques/app/components/descripcion-acerca-de.js
-	cd app/templates/components/; ln -s ../../../pilas-bloques/app/templates/components/descripcion-acerca-de.hbs
-
-iniciar_subcarpeta_online:
-	@echo "$(V)clonando pilas-bloques para servir en /online ...$(N)"
-	cd ../; git clone http://github.com/program-ar/pilas-bloques.git pilas-bloques; cd pilas-bloques; npm install && npm run build:web;
-
-release:
-	@python extras/obtener_links.py
-	git commit -am "Actualizando links de Pilas Bloques a nueva versión" 
-	release patch
-
-deploy_test:
-	$(EMBER) build
-	surge --domain sitepilasbloques.surge.sh --project ./dist/
