@@ -11,6 +11,8 @@ cache:
 before_install: npm config set spin false
 install: npm install
 
+stages: ["Tests and surge", "Package site"]
+
 jobs:
   include:
     - stage: "Tests and surge"
