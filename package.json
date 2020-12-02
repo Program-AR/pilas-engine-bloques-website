@@ -1,6 +1,6 @@
 {
   "name": "pilas-engine-bloques-website",
-  "version": "1.0.12",
+  "version": "1.0.15",
   "private": true,
   "description": "Small description for pilas-engine-bloques-website goes here",
   "repository": "",
@@ -11,9 +11,18 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
+    "preinstall": "npm run pb:clone",
+    "pb:clone": "rm -rf pilas-bloques && git clone https://github.com/Program-AR/pilas-bloques.git --branch master --single-branch --depth 1 && npm run pb:copyabout",
+    "pb:copyabout": "cp pilas-bloques/app/components/descripcion-acerca-de.js app/components/descripcion-acerca-de.js && cp pilas-bloques/app/templates/components/descripcion-acerca-de.hbs app/templates/components/descripcion-acerca-de.hbs",
+    "pb:build": "cd pilas-bloques; git pull && npm run clean && npm install && npm run build:web",
+    "pb:updatedownloadlinks": "python extras/obtener_links.py && git commit -am \"Actualizando links de Pilas Bloques a nueva versión\"",
     "start": "ember serve",
-    "test": "ember test"
+    "build": "ember build --environment development",
+    "test": "ember test",
+    "surge": "npm run build && surge --domain sitepilasbloques.surge.sh --project ./dist/",
+    "release": "release patch",
+    "prepackage:site": "npm run pb:build && npm run build",
+    "package:site": "cp -R pilas-bloques/dist_web dist/online && tar -czvf sitepilasbloques.tar.gz dist/*"
   },
   "devDependencies": {
     "@ember/jquery": "^0.6.1",
@@ -40,7 +49,8 @@
     "ember-welcome-page": "^4.0.0",
     "font-awesome": "^4.7.0",
     "loader.js": "^4.7.0",
-    "qunit-dom": "^0.9.0"
+    "qunit-dom": "^0.9.0",
+    "release": "^6.3.0"
   },
   "engines": {
     "node": "8.* || >= 10.*"

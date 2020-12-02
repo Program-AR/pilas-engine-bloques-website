@@ -13,10 +13,10 @@ def actualizar_index_js():
     escribir('app/routes/index.js', contenido)
 
 def version_pilas_bloques():
-    return subprocess.check_output('cd ../pilas-bloques; scripts/obtenerVersion.sh', shell=True).strip()
+    return subprocess.check_output('cd pilas-bloques; scripts/obtenerVersion.sh', shell=True).strip()
 
 def fecha_pilas_bloques():
-    return modification_date("../pilas-bloques/package.json")
+    return modification_date("pilas-bloques/package.json")
 
 def modification_date(filename):
     t = os.path.getmtime(filename)
