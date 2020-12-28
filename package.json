@@ -14,7 +14,7 @@
     "preinstall": "npm run pb:clone",
     "pb:clone": "rm -rf pilas-bloques && git clone https://github.com/Program-AR/pilas-bloques.git --branch master --single-branch --depth 1 && npm run pb:copyabout",
     "pb:copyabout": "cp pilas-bloques/app/components/descripcion-acerca-de.js app/components/descripcion-acerca-de.js && cp pilas-bloques/app/templates/components/descripcion-acerca-de.hbs app/templates/components/descripcion-acerca-de.hbs",
-    "pb:build": "cd pilas-bloques; git pull && npm run clean && npm install && npm run build:web",
+    "pb:build": "cd pilas-bloques; git pull && npm run clean && npm install && npm run build:prod",
     "pb:updatedownloadlinks": "python extras/obtener_links.py && git commit -am \"Actualizando links de Pilas Bloques a nueva versión\"",
     "start": "ember serve",
     "build": "ember build --environment development",
