@@ -49,7 +49,7 @@ deploy_site: registrar_deploy_site
 deploy_app: registrar_deploy_app
 	npm run pb:build
 	@echo "$(V)iniciando deploy de la app hacia new/online ...$(N)"
-	scp -r pilas-bloques/dist_web/. pilasbloques@www.daleaceptar.gob.ar:new/online/
+	scp -r pilas-bloques/dist_prod/. pilasbloques@www.daleaceptar.gob.ar:new/online/
 	@echo ""
 	@echo " $(V)Deploy OK$(N) "
 	@echo ""

@@ -22,7 +22,7 @@
     "surge": "npm run build && surge --domain sitepilasbloques.surge.sh --project ./dist/",
     "release": "release patch",
     "prepackage:site": "npm run pb:build && npm run build",
-    "package:site": "cp -R pilas-bloques/dist_web dist/online && tar -czvf sitepilasbloques.tar.gz dist/*"
+    "package:site": "cp -R pilas-bloques/dist_prod dist/online && tar -czvf sitepilasbloques.tar.gz dist/*"
   },
   "devDependencies": {
     "@ember/jquery": "^0.6.1",
