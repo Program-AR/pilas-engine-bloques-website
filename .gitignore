@@ -24,3 +24,5 @@ testem.log
 
 app/components/descripcion-acerca-de.js
 app/templates/components/descripcion-acerca-de.hbs
+
+.idea
