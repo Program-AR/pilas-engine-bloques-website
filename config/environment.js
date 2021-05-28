@@ -1,6 +1,21 @@
 'use strict';
 
-module.exports = function(environment) {
+const fs = require('fs')
+
+const pilasBloquesSubprojectVersion = (critical = false) => {
+  try {
+    const pbPackage = fs.readFileSync('pilas-bloques/package.json', 'utf8')
+    return JSON.parse(pbPackage).version
+  } catch (err) {
+    if(critical){
+      console.error(err)
+      throw "Could not retrieve Pilas Bloques version from subproject"
+    }
+  }
+}
+
+module.exports = function(environment) { 
+
   let ENV = {
     modulePrefix: 'pilas-engine-bloques-website',
     environment: environment,
@@ -20,7 +35,9 @@ module.exports = function(environment) {
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
-    }
+    },
+
+    pilasBloquesVersion: pilasBloquesSubprojectVersion() || 'versionMissing',
   };
 
   if (environment === 'development') {
@@ -44,7 +61,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-    // here you can enable a production-specific feature
+    ENV.pilasBloquesVersion = pilasBloquesSubprojectVersion(true)
   }
 
   return ENV;

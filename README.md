@@ -9,8 +9,7 @@ Pilas Bloques main website. If you are looking for Pilas Bloques app source, it 
 - `npm install` will install dependencies and clone subproject pilas-bloques.
 - `npm test` runs tests.
 - `npm start` will serve the webpage.
-- `npm run build` will build the site to `dist` folder.
-- `npm run pb:updatedownloadlinks` will get subproject pilas-bloques' package.json version and date and update this site's files.
+- `npm run build` will build the site to `dist` folder. It uses subproject `pilas-bloques` version to set download links.
 - `npm run package:site` will put the site AND Pilas Bloques app in a nice ready-to-publish compressed tar.gz file. Gets Pilas Bloques from `master` branch.
 
 ## Deploy 
