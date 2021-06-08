@@ -1,16 +1,11 @@
 import Route from '@ember/routing/route';
 import config from '../config/environment';
+import { inject as service } from '@ember/service';
 
 export default Route.extend({
+  artifact_links: service('artifact-links'),
   model: function() {
-    const baseDownloadURL = `https://github.com/Program-AR/pilas-bloques/releases/download/${config.pilasBloquesVersion}/`
-    return {
-      version: config.pilasBloquesVersion,
-      link_mac: baseDownloadURL + `pilasbloques-${config.pilasBloquesVersion}.dmg`,
-      link_windows: baseDownloadURL + `pilasbloques-${config.pilasBloquesVersion}.exe`,
-      link_ziplinux: baseDownloadURL + `pilasbloques-${config.pilasBloquesVersion}-linux-x64.zip`,
-      link_deb: baseDownloadURL + `pilasbloques_${config.pilasBloquesVersion}_amd64.deb`
-    };
+    return this.get('artifact_links').links
   },
 
   actions: {
