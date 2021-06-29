@@ -39,5 +39,6 @@ jobs:
       - run: npm run package:site
       - uses: ncipollo/release-action@v1
         with:
-          artifact: sitepilasbloques.tar.gz
+          allowUpdates: true
+          artifacts: sitepilasbloques.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
