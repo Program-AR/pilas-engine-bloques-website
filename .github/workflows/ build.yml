@@ -1,6 +1,7 @@
 name: build
 on: [push]
 jobs:
+  #Copypasted from https://github.com/Program-AR/pilas-bloques/blob/develop/.github/workflows/build.yml
   test:
     runs-on: ubuntu-latest
     steps:
