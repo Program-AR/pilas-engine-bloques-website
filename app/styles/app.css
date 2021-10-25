@@ -113,4 +113,6 @@ img {
 
 code { 
   font-family: monospace;
+  display: block;
+  white-space: pre-wrap;   
 }
