@@ -22,7 +22,8 @@ pilas-bloques
 npm-debug.log
 testem.log
 
-app/components/descripcion-acerca-de.js
-app/templates/components/descripcion-acerca-de.hbs
+# See package.json pb:copyabout
+# app/components/descripcion-acerca-de.js
+# app/templates/components/descripcion-acerca-de.hbs
 
 .idea
