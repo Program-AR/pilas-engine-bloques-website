@@ -18,6 +18,12 @@ h2 {
   padding: 0;
 }
 
+.online{
+  display:flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
 .online i, .online a {
   display: block;
   width: 300px;
