@@ -1,6 +1,6 @@
 {
   "name": "pilas-engine-bloques-website",
-  "version": "1.0.26",
+  "version": "1.0.28",
   "private": true,
   "description": "Small description for pilas-engine-bloques-website goes here",
   "repository": "",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "preinstall": "npm run pb:clone",
-    "pb:clone": "rm -rf pilas-bloques && git clone https://github.com/Program-AR/pilas-bloques.git --branch develop --single-branch --depth 1",
+    "pb:clone": "rm -rf pilas-bloques && git clone https://github.com/Program-AR/pilas-bloques.git --branch master --single-branch --depth 1",
     "pb:copyabout": "Deshabilitado temporalmente. Se usaba en pb:clone para no repetir el about, pero ahora el about tiene traducciones y este proyecto no. -> cp pilas-bloques/app/components/descripcion-acerca-de.js app/components/descripcion-acerca-de.js && cp pilas-bloques/app/templates/components/descripcion-acerca-de.hbs app/templates/components/descripcion-acerca-de.hbs",
     "pb:build": "cd pilas-bloques; git pull && npm run clean && npm install && npm run build:prod",
     "start": "ember serve",
