@@ -6,6 +6,7 @@
 /dist
 /tmp
 /dist_web
+sitepilasbloques.tar.gz
 
 # dependencies
 /node_modules
