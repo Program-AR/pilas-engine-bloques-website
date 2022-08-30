@@ -17,6 +17,10 @@ Pilas Bloques main website. If you are looking for Pilas Bloques app source, it 
 - `npm run build` will build the site to `dist` folder. It uses subproject `pilas-bloques` version to set download links.
 - `npm run package:site` will put the site AND Pilas Bloques app in a nice ready-to-publish compressed tar.gz file. Gets Pilas Bloques from `master` branch.
 
-## Deploy 
+## Release & Deploy
 
-Deploy scripts are for now in Makefile (run `make` and read). Will soon be deprecated and replaced by npm run package:site && Docker.
+For releasing & deploying:
+
+1. Make sure the desired publishable `pilas-bloques` project version is on its `master` branch.
+2. Just run `npm run release`. This will run `package:site` on the CI and publish it.
+3. Then, deploy using project containerization.
